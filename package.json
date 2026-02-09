@@ -30,6 +30,7 @@
     "@vueuse/core": "^11.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "countries-list": "^3.2.2",
     "embla-carousel": "^8.3.0",
     "embla-carousel-vue": "^8.3.0",
     "lucide-vue-next": "^0.452.0",

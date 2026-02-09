@@ -19,29 +19,30 @@ interface BenefitsProps {
 const benefitList: BenefitsProps[] = [
   {
     icon: "blocks",
-    title: "Build Brand Trust",
+    title: "Live Trading",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam. Natus consectetur dolores.",
+      "Watch trades unfold live and learn the “why” behind entries, exits, and risk — no copy-paste signals or guesswork.",
   },
   {
     icon: "lineChart",
-    title: "More Leads",
+    title: "Order Flow",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam, natus consectetur.",
+      "Use Level 2 and futures order-flow to spot liquidity and intent, so you understand absorption, momentum, and timing.",
   },
   {
     icon: "wallet",
-    title: "Higher Conversions",
+    title: "Gold Focus",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus consectetur. A odio velit cum aliquam",
+      "We focus on Gold (XAUUSD), mainly during the New York session — one market, one framework, consistent execution."
   },
   {
     icon: "sparkle",
-    title: "Test Marketing Ideas",
+    title: "WhatsApp Community",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam. Natus consectetur dolores.",
+      "Join our WhatsApp community to share ideas, ask questions, and improve together — focused traders, no hype or noise.",
   },
 ];
+
 
 const iconMap: Record<
   string,
@@ -62,21 +63,19 @@ const iconMap: Record<
 </script>
 
 <template>
-  <section
-    id="benefits"
-    class="container py-24 sm:py-32"
-  >
+  <section id="benefits" class="container py-24 sm:py-32">
     <div class="grid lg:grid-cols-2 place-items-center lg:gap-24">
       <div>
         <h2 class="text-lg text-primary mb-2 tracking-wider">Benefits</h2>
 
         <h2 class="text-3xl md:text-4xl font-bold mb-4">
-          Your Shortcut to Success
+          Your Shortcut to Smarter Trading
         </h2>
+
         <p class="text-xl text-muted-foreground mb-8">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Non ducimus
-          reprehenderit architecto rerum similique facere odit deleniti
-          necessitatibus quo quae.
+          Learn how professional traders approach the market using live sessions,
+          real order-flow data, and a disciplined framework — focused on Gold
+          (XAUUSD).
         </p>
       </div>
 
@@ -88,10 +87,7 @@ const iconMap: Record<
         >
           <CardHeader>
             <div class="flex justify-between">
-              <component
-                class="size-8 mb-6 text-primary"
-                :is="iconMap[icon]"
-              />
+              <component class="size-8 mb-6 text-primary" :is="iconMap[icon]" />
 
               <span
                 class="text-5xl text-muted-foreground/15 font-medium transition-all delay-75 group-hover/number:text-muted-foreground/30"

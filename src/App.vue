@@ -10,8 +10,13 @@ import Community from "@/components/Community.vue";
 import Contact from "@/components/Contact.vue";
 import FAQ from "@/components/FAQ.vue";
 import Footer from "@/components/Footer.vue";
+import AppDashboard from "@/pages/app/Dashboard.vue";
+import AppBilling from "@/pages/app/Billing.vue";
+import AppProfile from "@/pages/app/Profile.vue";
+
 
 import Checkout from "@/components/Checkout.vue";
+import Register from "@/components/User/Register.vue";
 import Login from "@/components/User/Login.vue";
 import ForgotPassword from "@/components/User/ForgotPassword.vue";
 import ResetPassword from "@/components/User/ResetPassword.vue";
@@ -35,12 +40,19 @@ onBeforeUnmount(() =>
   <Checkout v-if="route === '/checkout'" />
 
   <!-- Login -->
+  <Register v-else-if="route === '/register'" />
   <Login v-else-if="route === '/login'" />
 
   <!-- Forgot Password -->
   <ForgotPassword v-else-if="route === '/forgot-password'" />
 
+  <!-- Reset Password -->
   <ResetPassword v-else-if="route === '/reset-password'" />
+
+  <!-- User App Pages -->
+  <AppDashboard v-else-if="route === '/app/dashboard'" />
+  <AppBilling v-else-if="route === '/app/billing'" />
+  <AppProfile v-else-if="route === '/app/profile'" />
 
   <!-- Landing -->
   <template v-else>

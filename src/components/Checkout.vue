@@ -26,15 +26,13 @@ interface Plan {
 }
 
 /* ---------------- PLANS ---------------- */
-
 const plans: Plan[] = [
   {
     slug: "basic",
     title: "Basic",
     price: 25,
     period: "month",
-    description:
-      "Perfect for beginners seeking guided trades, live sessions, and essential market insights.",
+    description: "Perfect for beginners seeking guided trades, live sessions, and essential market insights.",
     benefitList: [
       "Live 90-minute trading session",
       "Exclusive chart alerts",
@@ -47,8 +45,7 @@ const plans: Plan[] = [
     title: "Premium",
     price: 60,
     period: "quarter",
-    description:
-      "Ideal for active traders who want full-day live trading, premium alerts, and deeper market analysis.",
+    description: "Ideal for active traders who want full-day live trading, premium alerts, and deeper market analysis.",
     benefitList: [
       "Extended live trading sessions",
       "Premium chart alerts",
@@ -61,8 +58,7 @@ const plans: Plan[] = [
     title: "Enterprise",
     price: 100,
     period: "hour",
-    description:
-      "Built for serious traders who need complete access, advanced tools, and priority-level support.",
+    description: "Built for serious traders who need complete access, advanced tools, and priority-level support.",
     benefitList: [
       "1:1 trading session (60 minutes)",
       "Strategy development",
@@ -74,7 +70,6 @@ const plans: Plan[] = [
 ]
 
 /* ---------------- PLAN FROM URL ---------------- */
-
 const getPlanFromUrl = (): PlanSlug | null => {
   const params = new URLSearchParams(window.location.search)
   const plan = (params.get("plan") || "").toLowerCase()
@@ -90,9 +85,7 @@ const selectedPlan = computed(() => {
 
 const planLabel = computed(() => {
   if (!selectedPlan.value) return ""
-  return selectedPlan.value.period === "hour"
-    ? "/hourly"
-    : `/${selectedPlan.value.period}`
+  return selectedPlan.value.period === "hour" ? "/hourly" : `/${selectedPlan.value.period}`
 })
 
 const changePlan = () => {
@@ -100,10 +93,11 @@ const changePlan = () => {
 }
 
 /* ---------------- FORM ---------------- */
-
 const form = reactive({
   firstName: "",
   lastName: "",
+  nickname: "",       // ← NEW
+  isAnonymous: false, // ← NEW
   email: "",
   countryCode: "+971",
   whatsapp: "",
@@ -112,6 +106,7 @@ const form = reactive({
 const errors = reactive({
   firstName: "",
   lastName: "",
+  nickname: "",       // ← NEW
   email: "",
   whatsapp: "",
   proof: "",
@@ -124,10 +119,8 @@ const errors = reactive({
 const isLoading = ref(false)
 
 /* ---------------- COUNTRIES ---------------- */
-
 const countryOptions = computed(() => {
   const dn = new Intl.DisplayNames([navigator.language], { type: "region" })
-
   return Object.entries(countries)
     .map(([iso2, c]) => ({
       iso2,
@@ -146,7 +139,6 @@ onMounted(() => {
 })
 
 /* ---------------- PAYMENT ---------------- */
-
 const payGroup = ref<PayGroup>("card")
 const manualType = ref<ManualType>("bank")
 const proofFile = ref<File | null>(null)
@@ -160,7 +152,6 @@ const cardForm = reactive({
 
 const isProofRequired = computed(() => payGroup.value !== "card")
 
-// placeholders (swap with real details later)
 const bankDetails = reactive({
   bankName: "ABC Bank",
   accountName: "Market Sharks",
@@ -168,27 +159,14 @@ const bankDetails = reactive({
   referenceHint: "Use your email as reference",
 })
 
-const jazzCashDetails = reactive({
-  number: "03XXXXXXXXX",
-  name: "Market Sharks",
-})
-
-const easyPaisaDetails = reactive({
-  number: "03XXXXXXXXX",
-  name: "Market Sharks",
-})
-
-const btcDetails = reactive({
-  address: "bc1qxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-})
+const jazzCashDetails = reactive({ number: "03XXXXXXXXX", name: "Market Sharks" })
+const easyPaisaDetails = reactive({ number: "03XXXXXXXXX", name: "Market Sharks" })
+const btcDetails = reactive({ address: "bc1qxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" })
 
 const selectPayGroup = (g: PayGroup) => {
   payGroup.value = g
-
-  // reset mode-specific
   errors.proof = ""
   proofFile.value = null
-
   errors.cardNumber = ""
   errors.cardName = ""
   errors.cardExp = ""
@@ -196,21 +174,18 @@ const selectPayGroup = (g: PayGroup) => {
 }
 
 /* ---------------- COPY FEEDBACK ---------------- */
-
 const btcCopied = ref(false)
 let btcCopyTimer: number | null = null
 
 const copyToClipboard = async (text: string) => {
   await navigator.clipboard.writeText(text)
   btcCopied.value = true
-
   if (btcCopyTimer) clearTimeout(btcCopyTimer)
   btcCopyTimer = window.setTimeout(() => {
     btcCopied.value = false
     btcCopyTimer = null
   }, 1500)
 }
-
 
 const onProofChange = (e: Event) => {
   const input = e.target as HTMLInputElement
@@ -219,12 +194,21 @@ const onProofChange = (e: Event) => {
 }
 
 /* ---------------- VALIDATION ---------------- */
-
 const validate = () => {
-  errors.firstName = form.firstName.trim() ? "" : "First name is required"
-  errors.lastName = form.lastName.trim() ? "" : "Last name is required"
+  // Reset all
+  errors.firstName = ""
+  errors.lastName = ""
+  errors.nickname = ""
   errors.email = form.email.trim() ? "" : "Email is required"
   errors.whatsapp = form.whatsapp.trim() ? "" : "WhatsApp number is required"
+
+  // Name or nickname based on anonymous toggle
+  if (!form.isAnonymous) {
+    errors.firstName = form.firstName.trim() ? "" : "First name is required"
+    errors.lastName = form.lastName.trim() ? "" : "Last name is required"
+  } else {
+    errors.nickname = form.nickname.trim() ? "" : "Nickname is required"
+  }
 
   errors.proof = isProofRequired.value && !proofFile.value ? "Payment proof is required" : ""
 
@@ -243,22 +227,22 @@ const validate = () => {
   return Object.values(errors).every((e) => !e)
 }
 
-/* ---------------- SUBMIT (placeholder) ---------------- */
-
+/* ---------------- SUBMIT ---------------- */
 const submitCheckout = async () => {
   if (!selectedPlan.value) return
   if (!validate()) return
 
   isLoading.value = true
 
+  // Backend payload — name is nickname if anonymous
   console.log({
     plan: selectedPlan.value.slug,
-    payGroup: payGroup.value,
-    manualType: payGroup.value === "manual" ? manualType.value : null,
-    firstName: form.firstName,
-    lastName: form.lastName,
+    name: form.isAnonymous ? form.nickname : `${form.firstName} ${form.lastName}`,
+    is_anonymous: form.isAnonymous,
     email: form.email,
     whatsapp: `${form.countryCode}${form.whatsapp}`,
+    payGroup: payGroup.value,
+    manualType: payGroup.value === "manual" ? manualType.value : null,
     proofFileName: proofFile.value?.name || null,
     card: payGroup.value === "card" ? { ...cardForm } : null,
   })
@@ -279,11 +263,12 @@ const submitCheckout = async () => {
       <Card>
         <CardHeader>
           <CardTitle class="text-2xl font-bold">Checkout</CardTitle>
-          <CardDescription>We’ll create your account after payment.</CardDescription>
+          <CardDescription>We'll create your account after payment.</CardDescription>
         </CardHeader>
 
         <CardContent class="space-y-6">
-          <!-- ORDER SUMMARY (2 columns perks) -->
+
+          <!-- ORDER SUMMARY -->
           <div class="rounded-md border p-4">
             <div class="flex items-start justify-between gap-4">
               <div class="min-w-0">
@@ -295,7 +280,6 @@ const submitCheckout = async () => {
                   </span>
                 </div>
               </div>
-
               <button
                 type="button"
                 class="text-sm underline text-muted-foreground hover:text-foreground"
@@ -304,7 +288,6 @@ const submitCheckout = async () => {
                 Change
               </button>
             </div>
-
             <div class="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
               <div
                 v-for="b in selectedPlan.benefitList"
@@ -316,12 +299,25 @@ const submitCheckout = async () => {
               </div>
             </div>
           </div>
-
-          <!-- 1) YOUR DETAILS (first + last in one row) -->
+          
+          <!-- 1) YOUR DETAILS -->
           <div class="rounded-md border p-4 space-y-4">
+            <!-- Anonymous toggle -->
+            <label class="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted/30 transition">
+              <input
+                type="checkbox"
+                v-model="form.isAnonymous"
+                class="w-4 h-4 rounded text-primary focus:ring-primary"
+              />
+              <div>
+                <span class="text-sm font-medium">Register anonymously</span>
+                <p class="text-xs text-muted-foreground">Your name will not be shown publicly</p>
+              </div>
+            </label>
             <p class="text-sm font-medium">1) Your details</p>
 
-            <div class="grid grid-cols-2 gap-3">
+            <!-- Normal: First + Last name -->
+            <div v-if="!form.isAnonymous" class="grid grid-cols-2 gap-3">
               <div class="space-y-2">
                 <label class="text-sm font-medium">First name</label>
                 <input
@@ -329,11 +325,8 @@ const submitCheckout = async () => {
                   class="w-full rounded-md border px-3 py-2 text-sm"
                   placeholder="John"
                 />
-                <p v-if="errors.firstName" class="text-sm text-destructive">
-                  {{ errors.firstName }}
-                </p>
+                <p v-if="errors.firstName" class="text-sm text-destructive">{{ errors.firstName }}</p>
               </div>
-
               <div class="space-y-2">
                 <label class="text-sm font-medium">Last name</label>
                 <input
@@ -341,12 +334,24 @@ const submitCheckout = async () => {
                   class="w-full rounded-md border px-3 py-2 text-sm"
                   placeholder="Doe"
                 />
-                <p v-if="errors.lastName" class="text-sm text-destructive">
-                  {{ errors.lastName }}
-                </p>
+                <p v-if="errors.lastName" class="text-sm text-destructive">{{ errors.lastName }}</p>
               </div>
             </div>
 
+            <!-- Anonymous: Nickname only -->
+            <div v-else class="space-y-2">
+              <label class="text-sm font-medium">Nickname</label>
+              <input
+                v-model="form.nickname"
+                class="w-full rounded-md border px-3 py-2 text-sm"
+                placeholder="TraderJohn"
+              />
+              <p v-if="errors.nickname" class="text-sm text-destructive">{{ errors.nickname }}</p>
+            </div>
+
+            
+
+            <!-- Email -->
             <div class="space-y-2">
               <label class="text-sm font-medium">Email</label>
               <input
@@ -355,14 +360,12 @@ const submitCheckout = async () => {
                 class="w-full rounded-md border px-3 py-2 text-sm"
                 placeholder="you@email.com"
               />
-              <p v-if="errors.email" class="text-sm text-destructive">
-                {{ errors.email }}
-              </p>
+              <p v-if="errors.email" class="text-sm text-destructive">{{ errors.email }}</p>
             </div>
 
+            <!-- WhatsApp -->
             <div class="space-y-2">
               <label class="text-sm font-medium">WhatsApp number</label>
-
               <div class="grid grid-cols-3 gap-2 sm:flex sm:gap-2">
                 <select
                   v-model="form.countryCode"
@@ -372,7 +375,6 @@ const submitCheckout = async () => {
                     {{ c.dial }} — {{ c.name }}
                   </option>
                 </select>
-
                 <input
                   v-model="form.whatsapp"
                   type="tel"
@@ -380,49 +382,34 @@ const submitCheckout = async () => {
                   placeholder="50xxxxxxx"
                 />
               </div>
-
-              <p v-if="errors.whatsapp" class="text-sm text-destructive">
-                {{ errors.whatsapp }}
-              </p>
+              <p v-if="errors.whatsapp" class="text-sm text-destructive">{{ errors.whatsapp }}</p>
             </div>
           </div>
 
-          <!-- 2) PAYMENT METHOD (select shows windows below) -->
+          <!-- 2) PAYMENT METHOD -->
           <div class="rounded-md border p-4 space-y-3">
             <p class="text-sm font-medium">2) Payment method</p>
-
             <div class="grid gap-3 sm:grid-cols-3">
               <button
                 type="button"
                 @click="selectPayGroup('card')"
-                :class="[
-                  'text-left rounded-md border p-3 transition',
-                  payGroup === 'card' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40',
-                ]"
+                :class="['text-left rounded-md border p-3 transition', payGroup === 'card' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40']"
               >
                 <div class="text-sm font-medium">Card</div>
                 <div class="text-xs text-muted-foreground">Instant</div>
               </button>
-
               <button
                 type="button"
                 @click="selectPayGroup('manual')"
-                :class="[
-                  'text-left rounded-md border p-3 transition',
-                  payGroup === 'manual' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40',
-                ]"
+                :class="['text-left rounded-md border p-3 transition', payGroup === 'manual' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40']"
               >
                 <div class="text-sm font-medium">Manual</div>
                 <div class="text-xs text-muted-foreground">Bank / JazzCash / EasyPaisa</div>
               </button>
-
               <button
                 type="button"
                 @click="selectPayGroup('crypto')"
-                :class="[
-                  'text-left rounded-md border p-3 transition',
-                  payGroup === 'crypto' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40',
-                ]"
+                :class="['text-left rounded-md border p-3 transition', payGroup === 'crypto' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40']"
               >
                 <div class="text-sm font-medium">Crypto</div>
                 <div class="text-xs text-muted-foreground">BTC</div>
@@ -430,111 +417,45 @@ const submitCheckout = async () => {
             </div>
           </div>
 
-          <!-- 3) COMPLETE PAYMENT (THIS IS THE PART I FORGOT BEFORE) -->
+          <!-- 3) COMPLETE PAYMENT -->
           <div class="rounded-md border p-4 space-y-3">
             <p class="text-sm font-medium">3) Complete payment</p>
 
-            <!-- CARD WINDOW -->
+            <!-- CARD -->
             <div v-if="payGroup === 'card'" class="space-y-4">
               <div class="grid gap-3 sm:grid-cols-2">
                 <div class="sm:col-span-2 space-y-2">
                   <label class="text-sm font-medium">Card number</label>
-                  <input
-                    v-model="cardForm.number"
-                    inputmode="numeric"
-                    autocomplete="cc-number"
-                    class="w-full rounded-md border px-3 py-2 text-sm"
-                    placeholder="1234 5678 9012 3456"
-                  />
-                  <p v-if="errors.cardNumber" class="text-sm text-destructive">
-                    {{ errors.cardNumber }}
-                  </p>
+                  <input v-model="cardForm.number" inputmode="numeric" autocomplete="cc-number" class="w-full rounded-md border px-3 py-2 text-sm" placeholder="1234 5678 9012 3456" />
+                  <p v-if="errors.cardNumber" class="text-sm text-destructive">{{ errors.cardNumber }}</p>
                 </div>
-
                 <div class="sm:col-span-2 space-y-2">
                   <label class="text-sm font-medium">Name on card</label>
-                  <input
-                    v-model="cardForm.name"
-                    autocomplete="cc-name"
-                    class="w-full rounded-md border px-3 py-2 text-sm"
-                    placeholder="John Doe"
-                  />
-                  <p v-if="errors.cardName" class="text-sm text-destructive">
-                    {{ errors.cardName }}
-                  </p>
+                  <input v-model="cardForm.name" autocomplete="cc-name" class="w-full rounded-md border px-3 py-2 text-sm" placeholder="John Doe" />
+                  <p v-if="errors.cardName" class="text-sm text-destructive">{{ errors.cardName }}</p>
                 </div>
-
                 <div class="space-y-2">
                   <label class="text-sm font-medium">Expiry (MM/YY)</label>
-                  <input
-                    v-model="cardForm.exp"
-                    inputmode="numeric"
-                    autocomplete="cc-exp"
-                    class="w-full rounded-md border px-3 py-2 text-sm"
-                    placeholder="MM/YY"
-                  />
-                  <p v-if="errors.cardExp" class="text-sm text-destructive">
-                    {{ errors.cardExp }}
-                  </p>
+                  <input v-model="cardForm.exp" inputmode="numeric" autocomplete="cc-exp" class="w-full rounded-md border px-3 py-2 text-sm" placeholder="MM/YY" />
+                  <p v-if="errors.cardExp" class="text-sm text-destructive">{{ errors.cardExp }}</p>
                 </div>
-
                 <div class="space-y-2">
                   <label class="text-sm font-medium">CVC</label>
-                  <input
-                    v-model="cardForm.cvc"
-                    inputmode="numeric"
-                    autocomplete="cc-csc"
-                    class="w-full rounded-md border px-3 py-2 text-sm"
-                    placeholder="123"
-                  />
-                  <p v-if="errors.cardCvc" class="text-sm text-destructive">
-                    {{ errors.cardCvc }}
-                  </p>
+                  <input v-model="cardForm.cvc" inputmode="numeric" autocomplete="cc-csc" class="w-full rounded-md border px-3 py-2 text-sm" placeholder="123" />
+                  <p v-if="errors.cardCvc" class="text-sm text-destructive">{{ errors.cardCvc }}</p>
                 </div>
               </div>
-
               <Button class="w-full" :disabled="isLoading" @click="submitCheckout">
                 Pay with Card
               </Button>
             </div>
 
-            <!-- MANUAL WINDOW -->
+            <!-- MANUAL -->
             <div v-else-if="payGroup === 'manual'" class="space-y-4">
               <div class="flex gap-2">
-                <button
-                  type="button"
-                  @click="manualType = 'bank'"
-                  :class="[
-                    'px-3 py-2 text-sm rounded-md border transition',
-                    manualType === 'bank' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40',
-                  ]"
-                >
-                  Bank
-                </button>
-                <button
-                  type="button"
-                  @click="manualType = 'jazzcash'"
-                  :class="[
-                    'px-3 py-2 text-sm rounded-md border transition',
-                    manualType === 'jazzcash'
-                      ? 'border-primary ring-1 ring-primary'
-                      : 'hover:bg-muted/40',
-                  ]"
-                >
-                  JazzCash
-                </button>
-                <button
-                  type="button"
-                  @click="manualType = 'easypaisa'"
-                  :class="[
-                    'px-3 py-2 text-sm rounded-md border transition',
-                    manualType === 'easypaisa'
-                      ? 'border-primary ring-1 ring-primary'
-                      : 'hover:bg-muted/40',
-                  ]"
-                >
-                  EasyPaisa
-                </button>
+                <button type="button" @click="manualType = 'bank'" :class="['px-3 py-2 text-sm rounded-md border transition', manualType === 'bank' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40']">Bank</button>
+                <button type="button" @click="manualType = 'jazzcash'" :class="['px-3 py-2 text-sm rounded-md border transition', manualType === 'jazzcash' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40']">JazzCash</button>
+                <button type="button" @click="manualType = 'easypaisa'" :class="['px-3 py-2 text-sm rounded-md border transition', manualType === 'easypaisa' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40']">EasyPaisa</button>
               </div>
 
               <div v-if="manualType === 'bank'" class="text-sm space-y-1">
@@ -543,12 +464,10 @@ const submitCheckout = async () => {
                 <div><span class="font-medium">IBAN:</span> {{ bankDetails.iban }}</div>
                 <div class="text-muted-foreground">{{ bankDetails.referenceHint }}</div>
               </div>
-
               <div v-else-if="manualType === 'jazzcash'" class="text-sm space-y-1">
                 <div><span class="font-medium">Send to:</span> {{ jazzCashDetails.number }}</div>
                 <div><span class="font-medium">Name:</span> {{ jazzCashDetails.name }}</div>
               </div>
-
               <div v-else class="text-sm space-y-1">
                 <div><span class="font-medium">Send to:</span> {{ easyPaisaDetails.number }}</div>
                 <div><span class="font-medium">Name:</span> {{ easyPaisaDetails.name }}</div>
@@ -556,73 +475,40 @@ const submitCheckout = async () => {
 
               <div class="space-y-2 pt-2">
                 <label class="text-sm font-medium">Upload payment proof (screenshot)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  class="block w-full text-sm"
-                  @change="onProofChange"
-                />
-                <p v-if="proofFile" class="text-sm text-muted-foreground">
-                  Selected: {{ proofFile.name }}
-                </p>
-                <p v-if="errors.proof" class="text-sm text-destructive">
-                  {{ errors.proof }}
-                </p>
+                <input type="file" accept="image/*" class="block w-full text-sm" @change="onProofChange" />
+                <p v-if="proofFile" class="text-sm text-muted-foreground">Selected: {{ proofFile.name }}</p>
+                <p v-if="errors.proof" class="text-sm text-destructive">{{ errors.proof }}</p>
               </div>
-
-              <Button class="w-full" :disabled="isLoading" @click="submitCheckout">
-                Submit for Review
-              </Button>
+              <Button class="w-full" :disabled="isLoading" @click="submitCheckout">Submit for Review</Button>
             </div>
 
-            <!-- CRYPTO WINDOW -->
+            <!-- CRYPTO -->
             <div v-else class="space-y-4">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <div class="text-sm font-medium">BTC Address</div>
                   <div class="text-sm text-muted-foreground break-all">{{ btcDetails.address }}</div>
                 </div>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  @click="copyToClipboard(btcDetails.address)"
-                >
-                  <template v-if="btcCopied">
-                    ✓ Copied
-                  </template>
-                  <template v-else>
-                    <Copy class="w-4 h-4 mr-2" /> Copy
-                  </template>
+                <Button variant="secondary" size="sm" @click="copyToClipboard(btcDetails.address)">
+                  <template v-if="btcCopied">✓ Copied</template>
+                  <template v-else><Copy class="w-4 h-4 mr-2" /> Copy</template>
                 </Button>
-
               </div>
 
               <div class="space-y-2">
                 <label class="text-sm font-medium">Upload payment proof (screenshot)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  class="block w-full text-sm"
-                  @change="onProofChange"
-                />
-                <p v-if="proofFile" class="text-sm text-muted-foreground">
-                  Selected: {{ proofFile.name }}
-                </p>
-                <p v-if="errors.proof" class="text-sm text-destructive">
-                  {{ errors.proof }}
-                </p>
+                <input type="file" accept="image/*" class="block w-full text-sm" @change="onProofChange" />
+                <p v-if="proofFile" class="text-sm text-muted-foreground">Selected: {{ proofFile.name }}</p>
+                <p v-if="errors.proof" class="text-sm text-destructive">{{ errors.proof }}</p>
               </div>
-
-              <Button class="w-full" :disabled="isLoading" @click="submitCheckout">
-                Submit for Review
-              </Button>
+              <Button class="w-full" :disabled="isLoading" @click="submitCheckout">Submit for Review</Button>
             </div>
           </div>
 
           <p class="text-sm text-muted-foreground">
             After payment, login details will be emailed to you.
           </p>
+
         </CardContent>
       </Card>
     </div>

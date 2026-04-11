@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-import { ChevronsDown, Menu, LogIn } from "lucide-vue-next";
+import { ChevronsDown, Menu, LogIn, LayoutDashboard } from "lucide-vue-next";
 import ToggleTheme from "./ToggleTheme.vue";
 
 interface RouteProps {
@@ -52,17 +52,17 @@ const featureList: FeatureProps[] = [
   },
   {
     title: "Build Trust",
-    description:
-      "Leverages social proof elements to establish trust and credibility.",
+    description: "Leverages social proof elements to establish trust and credibility.",
   },
   {
     title: "Capture Leads",
-    description:
-      "Make your lead capture form visually appealing and strategically.",
+    description: "Make your lead capture form visually appealing and strategically.",
   },
 ];
 
 const isOpen = ref(false);
+
+const isLoggedIn = !!localStorage.getItem("auth_token");
 </script>
 
 <template>
@@ -124,15 +124,16 @@ const isOpen = ref(false);
             <div class="flex w-full items-center justify-between gap-2">
               <ToggleTheme />
 
-              <!-- Mobile Login -->
+              <!-- Mobile Button -->
               <Button as-child size="sm" aria-label="Login">
                 <a
-                  href="/login"
+                  :href="isLoggedIn ? '/app/dashboard' : '/login'"
                   @click="isOpen = false"
                   class="inline-flex items-center gap-2"
                 >
-                  <LogIn class="size-4" />
-                  Login
+                  <LayoutDashboard v-if="isLoggedIn" class="size-4" />
+                  <LogIn v-else class="size-4" />
+                  {{ isLoggedIn ? "Dashboard" : "Login" }}
                 </a>
               </Button>
             </div>
@@ -193,16 +194,20 @@ const isOpen = ref(false);
     <div class="hidden lg:flex items-center gap-2">
       <ToggleTheme />
 
-      <!-- Desktop Login -->
+      <!-- Desktop Button -->
       <Button
         as-child
         size="sm"
         class="rounded-full px-4 shadow-sm"
-        aria-label="Login"
+        :aria-label="isLoggedIn ? 'Dashboard' : 'Login'"
       >
-        <a href="/login" class="inline-flex items-center gap-2">
-          <LogIn class="size-4" />
-          Login
+        <a
+          :href="isLoggedIn ? '/app/dashboard' : '/login'"
+          class="inline-flex items-center gap-2"
+        >
+          <LayoutDashboard v-if="isLoggedIn" class="size-4" />
+          <LogIn v-else class="size-4" />
+          {{ isLoggedIn ? "Dashboard" : "Login" }}
         </a>
       </Button>
     </div>

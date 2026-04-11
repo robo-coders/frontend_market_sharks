@@ -96,19 +96,19 @@ const changePlan = () => {
 const form = reactive({
   firstName: "",
   lastName: "",
-  nickname: "",       // ← NEW
-  isAnonymous: false, // ← NEW
+  nickname: "",
+  isAnonymous: false,
   email: "",
   countryCode: "+971",
-  whatsapp: "",
+  whatsapp_number: "",
 })
 
 const errors = reactive({
   firstName: "",
   lastName: "",
-  nickname: "",       // ← NEW
+  nickname: "",
   email: "",
-  whatsapp: "",
+  whatsapp_number: "",
   proof: "",
   cardNumber: "",
   cardName: "",
@@ -159,9 +159,11 @@ const bankDetails = reactive({
   referenceHint: "Use your email as reference",
 })
 
-const jazzCashDetails = reactive({ number: "03XXXXXXXXX", name: "Market Sharks" })
-const easyPaisaDetails = reactive({ number: "03XXXXXXXXX", name: "Market Sharks" })
-const btcDetails = reactive({ address: "bc1qxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" })
+const jazzCashDetails = reactive({ number: "+923027743700", name: "Ali Raza" })
+const easyPaisaDetails = reactive({ number: "+923429883708", name: "Ali Raza" })
+
+const btcDetails = reactive({ address: "bc1q0xtas7rdmenepy6h8pqmyn6835ewqxr4rrzztf", network: "BTC (Bitcoin)" })
+const usdtDetails = reactive({ address: "TLUVYTLiKkQ6RpSD5dMFUNzuJ49aWHQTB1", network: "TRC20 (Tron)" })
 
 const selectPayGroup = (g: PayGroup) => {
   payGroup.value = g
@@ -177,13 +179,26 @@ const selectPayGroup = (g: PayGroup) => {
 const btcCopied = ref(false)
 let btcCopyTimer: number | null = null
 
-const copyToClipboard = async (text: string) => {
-  await navigator.clipboard.writeText(text)
+const copyBtc = async () => {
+  await navigator.clipboard.writeText(btcDetails.address)
   btcCopied.value = true
   if (btcCopyTimer) clearTimeout(btcCopyTimer)
   btcCopyTimer = window.setTimeout(() => {
     btcCopied.value = false
     btcCopyTimer = null
+  }, 1500)
+}
+
+const usdtCopied = ref(false)
+let usdtCopyTimer: number | null = null
+
+const copyUsdt = async () => {
+  await navigator.clipboard.writeText(usdtDetails.address)
+  usdtCopied.value = true
+  if (usdtCopyTimer) clearTimeout(usdtCopyTimer)
+  usdtCopyTimer = window.setTimeout(() => {
+    usdtCopied.value = false
+    usdtCopyTimer = null
   }, 1500)
 }
 
@@ -195,14 +210,12 @@ const onProofChange = (e: Event) => {
 
 /* ---------------- VALIDATION ---------------- */
 const validate = () => {
-  // Reset all
   errors.firstName = ""
   errors.lastName = ""
   errors.nickname = ""
   errors.email = form.email.trim() ? "" : "Email is required"
-  errors.whatsapp = form.whatsapp.trim() ? "" : "WhatsApp number is required"
+  errors.whatsapp_number = form.whatsapp_number.trim() ? "" : "WhatsApp number is required"
 
-  // Name or nickname based on anonymous toggle
   if (!form.isAnonymous) {
     errors.firstName = form.firstName.trim() ? "" : "First name is required"
     errors.lastName = form.lastName.trim() ? "" : "Last name is required"
@@ -234,20 +247,49 @@ const submitCheckout = async () => {
 
   isLoading.value = true
 
-  // Backend payload — name is nickname if anonymous
-  console.log({
-    plan: selectedPlan.value.slug,
-    name: form.isAnonymous ? form.nickname : `${form.firstName} ${form.lastName}`,
-    is_anonymous: form.isAnonymous,
-    email: form.email,
-    whatsapp: `${form.countryCode}${form.whatsapp}`,
-    payGroup: payGroup.value,
-    manualType: payGroup.value === "manual" ? manualType.value : null,
-    proofFileName: proofFile.value?.name || null,
-    card: payGroup.value === "card" ? { ...cardForm } : null,
-  })
+  // ✅ Fix: map "crypto" → "btc" for backend
+  const methodValue =
+    payGroup.value === "manual"
+      ? manualType.value
+      : payGroup.value === "crypto"
+        ? "btc"
+        : payGroup.value
 
-  isLoading.value = false
+  const formData = new FormData()
+  formData.append("plan", selectedPlan.value.slug)
+  formData.append("first_name", form.isAnonymous ? "" : form.firstName)
+  formData.append("last_name", form.isAnonymous ? "" : form.lastName)
+  formData.append("nickname", form.isAnonymous ? form.nickname : "")
+  formData.append("is_anonymous", form.isAnonymous ? "1" : "0")
+  formData.append("email", form.email)
+  formData.append("whatsapp_number", `${form.countryCode}${form.whatsapp_number}`)
+  formData.append("payment_method", methodValue)
+  if (proofFile.value) formData.append("proof", proofFile.value)
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/payment-requests`, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body: formData,
+    })
+
+    const json = await res.json()
+
+    // ✅ Fix: stop the loop — only redirect on actual success
+    if (!res.ok || !json.login_token) {
+      console.error("Submission failed:", json)
+      alert(json.message || "Something went wrong. Please try again.")
+      return
+    }
+
+    localStorage.setItem("auth_token", json.login_token)
+    window.location.href = "/app/dashboard"
+  } catch (e) {
+    console.error(e)
+    alert("Network error. Please try again.")
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -299,10 +341,9 @@ const submitCheckout = async () => {
               </div>
             </div>
           </div>
-          
+
           <!-- 1) YOUR DETAILS -->
           <div class="rounded-md border p-4 space-y-4">
-            <!-- Anonymous toggle -->
             <label class="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted/30 transition">
               <input
                 type="checkbox"
@@ -316,7 +357,6 @@ const submitCheckout = async () => {
             </label>
             <p class="text-sm font-medium">1) Your details</p>
 
-            <!-- Normal: First + Last name -->
             <div v-if="!form.isAnonymous" class="grid grid-cols-2 gap-3">
               <div class="space-y-2">
                 <label class="text-sm font-medium">First name</label>
@@ -338,7 +378,6 @@ const submitCheckout = async () => {
               </div>
             </div>
 
-            <!-- Anonymous: Nickname only -->
             <div v-else class="space-y-2">
               <label class="text-sm font-medium">Nickname</label>
               <input
@@ -349,9 +388,6 @@ const submitCheckout = async () => {
               <p v-if="errors.nickname" class="text-sm text-destructive">{{ errors.nickname }}</p>
             </div>
 
-            
-
-            <!-- Email -->
             <div class="space-y-2">
               <label class="text-sm font-medium">Email</label>
               <input
@@ -363,7 +399,6 @@ const submitCheckout = async () => {
               <p v-if="errors.email" class="text-sm text-destructive">{{ errors.email }}</p>
             </div>
 
-            <!-- WhatsApp -->
             <div class="space-y-2">
               <label class="text-sm font-medium">WhatsApp number</label>
               <div class="grid grid-cols-3 gap-2 sm:flex sm:gap-2">
@@ -376,13 +411,13 @@ const submitCheckout = async () => {
                   </option>
                 </select>
                 <input
-                  v-model="form.whatsapp"
+                  v-model="form.whatsapp_number"
                   type="tel"
                   class="col-span-2 sm:min-w-0 sm:flex-1 rounded-md border px-3 py-2 text-sm"
                   placeholder="50xxxxxxx"
                 />
               </div>
-              <p v-if="errors.whatsapp" class="text-sm text-destructive">{{ errors.whatsapp }}</p>
+              <p v-if="errors.whatsapp_number" class="text-sm text-destructive">{{ errors.whatsapp_number }}</p>
             </div>
           </div>
 
@@ -412,7 +447,7 @@ const submitCheckout = async () => {
                 :class="['text-left rounded-md border p-3 transition', payGroup === 'crypto' ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/40']"
               >
                 <div class="text-sm font-medium">Crypto</div>
-                <div class="text-xs text-muted-foreground">BTC</div>
+                <div class="text-xs text-muted-foreground">BTC / USDT</div>
               </button>
             </div>
           </div>
@@ -484,13 +519,29 @@ const submitCheckout = async () => {
 
             <!-- CRYPTO -->
             <div v-else class="space-y-4">
+
+              <!-- BTC -->
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <div class="text-sm font-medium">BTC Address</div>
+                  <div class="text-xs text-muted-foreground mb-1">Network: {{ btcDetails.network }}</div>
                   <div class="text-sm text-muted-foreground break-all">{{ btcDetails.address }}</div>
                 </div>
-                <Button variant="secondary" size="sm" @click="copyToClipboard(btcDetails.address)">
+                <Button variant="secondary" size="sm" @click="copyBtc">
                   <template v-if="btcCopied">✓ Copied</template>
+                  <template v-else><Copy class="w-4 h-4 mr-2" /> Copy</template>
+                </Button>
+              </div>
+
+              <!-- USDT -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="text-sm font-medium">USDT Address</div>
+                  <div class="text-xs text-muted-foreground mb-1">Network: {{ usdtDetails.network }}</div>
+                  <div class="text-sm text-muted-foreground break-all">{{ usdtDetails.address }}</div>
+                </div>
+                <Button variant="secondary" size="sm" @click="copyUsdt">
+                  <template v-if="usdtCopied">✓ Copied</template>
                   <template v-else><Copy class="w-4 h-4 mr-2" /> Copy</template>
                 </Button>
               </div>

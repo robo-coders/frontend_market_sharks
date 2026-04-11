@@ -35,8 +35,8 @@ const isOpen = ref(false);
 
 const nav = [
   { href: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/app/signals", label: "Signals", icon: TrendingUp },
-  { href: "/app/live", label: "Live", icon: Video },
+  // { href: "/app/Live", label: "Live", icon: TrendingUp },
+  // { href: "/app/Lectures", label: "Lectures", icon: Video },
   { href: "/app/billing", label: "Billing", icon: CreditCard },
   { href: "/app/profile", label: "Profile", icon: UserIcon },
 ];
@@ -58,7 +58,10 @@ const statusVariant = computed(() => {
 });
 
 const logout = () => {
-  window.location.href = "/login";
+  localStorage.removeItem("auth_token");
+  window.dispatchEvent(new Event("storage"));
+  window.history.pushState({}, "", "/login");
+  window.dispatchEvent(new PopStateEvent("popstate"));
 };
 </script>
 

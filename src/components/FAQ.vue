@@ -161,7 +161,7 @@ const level2FAQs: FAQProps[] = [
 
     <h3 class="font-medium mt-10 text-center">
       Still have questions?
-      <a href="#" class="underline text-primary">Contact us</a>
+      <a href="#contact" class="underline text-primary">Contact us</a>
     </h3>
 
   </section>

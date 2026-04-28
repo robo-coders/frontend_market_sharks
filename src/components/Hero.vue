@@ -197,7 +197,7 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Banner -->
-      <div class="relative w-full mt-6">
+      <div class="relative w-full mt-6" id="calculator">
         <div class="absolute -top-6 right-0 w-full h-12 lg:h-[80%] bg-primary/40 blur-3xl rounded-full img-shadow-animation pointer-events-none" />
 
         <div

@@ -42,6 +42,11 @@ const submitPassword = () => {
 
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+
+function friendlyDate(d: string | null | undefined) {
+  if (!d) return "Not set";
+  return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}  
 </script>
 
 <template>
@@ -158,7 +163,8 @@ const getInitials = (name: string) =>
 
               <div v-if="user.status === 'active' && user.expires_at" class="flex items-center gap-2 text-sm text-muted-foreground px-1">
                 <CalendarClock class="size-4 shrink-0" />
-                Expires: <span class="text-foreground font-medium">{{ user.expires_at }}</span>
+                Expires: 
+                <span class="text-foreground font-medium">{{ friendlyDate(user.expires_at) }}</span>
               </div>
 
               <div v-else-if="user.status === 'pending'" class="text-sm text-muted-foreground flex items-center gap-2 px-1">
@@ -171,11 +177,6 @@ const getInitials = (name: string) =>
                 Account restricted. Contact support.
               </div>
 
-              <Separator />
-
-              <Button class="w-full" variant="secondary" @click="window.location.href = '/pricing'">
-                Manage Plan
-              </Button>
             </CardContent>
           </Card>
         </div>

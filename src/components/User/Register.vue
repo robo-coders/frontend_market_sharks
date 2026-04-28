@@ -128,85 +128,108 @@ const submit = async () => {
 </script>
 
 <template>
-  <section class="min-h-screen flex items-center justify-center px-4">
+  <section class="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+
+    <!-- Top logo -->
+    <a
+      href="https://marketsharks.live"
+      class="flex items-center gap-2 mb-8 group"
+    >
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+        <span class="text-white font-black text-sm">MS</span>
+      </div>
+      <span class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+        Market Sharks
+      </span>
+    </a>
+
     <form @submit.prevent="submit" class="w-full max-w-md">
       <Card>
-        <CardHeader class="text-center space-y-2">
-          <CardTitle class="text-2xl font-bold">Join Market Sharks</CardTitle>
-          <CardDescription>Create your account to get started.</CardDescription>
+        <CardHeader class="text-center space-y-1 pb-4">
+          <CardTitle class="text-xl font-bold tracking-tight">Create your account</CardTitle>
+          <CardDescription>Join thousands of traders on Market Sharks.</CardDescription>
         </CardHeader>
 
         <CardContent class="space-y-4">
-          <p v-if="errors.general" class="text-sm text-destructive text-center">
+
+          <!-- General error -->
+          <div
+            v-if="errors.general"
+            class="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive text-center"
+          >
             {{ errors.general }}
-          </p>
+          </div>
 
           <!-- Anonymous toggle -->
-          <label class="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted/30 transition">
+          <label class="flex items-center gap-3 p-3 border border-border rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
             <input
               type="checkbox"
               v-model="form.isAnonymous"
-              class="w-4 h-4 rounded text-primary focus:ring-primary"
+              class="w-4 h-4 rounded text-primary focus:ring-primary shrink-0"
             />
             <div>
               <span class="text-sm font-medium">Anonymous account</span>
-              <p class="text-xs text-muted-foreground">Your name will not be shown publicly</p>
+              <p class="text-xs text-muted-foreground mt-0.5">Your real name will not be shown publicly</p>
             </div>
           </label>
 
           <!-- First + Last -->
           <div v-if="!form.isAnonymous" class="grid grid-cols-2 gap-3">
-            <div class="space-y-2">
+            <div class="space-y-1.5">
               <label class="text-sm font-medium">First name</label>
               <input
                 v-model="form.firstName"
-                class="w-full rounded-md border px-3 py-2 text-sm"
+                class="w-full rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                :class="errors.firstName ? 'border-destructive' : 'border-input'"
                 placeholder="John"
               />
-              <p v-if="errors.firstName" class="text-sm text-destructive">{{ errors.firstName }}</p>
+              <p v-if="errors.firstName" class="text-xs text-destructive">{{ errors.firstName }}</p>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-1.5">
               <label class="text-sm font-medium">Last name</label>
               <input
                 v-model="form.lastName"
-                class="w-full rounded-md border px-3 py-2 text-sm"
+                class="w-full rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                :class="errors.lastName ? 'border-destructive' : 'border-input'"
                 placeholder="Doe"
               />
-              <p v-if="errors.lastName" class="text-sm text-destructive">{{ errors.lastName }}</p>
+              <p v-if="errors.lastName" class="text-xs text-destructive">{{ errors.lastName }}</p>
             </div>
           </div>
 
           <!-- Nickname -->
-          <div v-else class="space-y-2">
+          <div v-else class="space-y-1.5">
             <label class="text-sm font-medium">Nickname</label>
             <input
               v-model="form.nickname"
-              class="w-full rounded-md border px-3 py-2 text-sm"
+              class="w-full rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              :class="errors.nickname ? 'border-destructive' : 'border-input'"
               placeholder="TraderJohn"
             />
-            <p v-if="errors.nickname" class="text-sm text-destructive">{{ errors.nickname }}</p>
+            <p v-if="errors.nickname" class="text-xs text-destructive">{{ errors.nickname }}</p>
           </div>
 
           <!-- Email -->
-          <div class="space-y-2">
+          <div class="space-y-1.5">
             <label class="text-sm font-medium">Email</label>
             <input
               v-model="form.email"
               type="email"
-              class="w-full rounded-md border px-3 py-2 text-sm"
+              class="w-full rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              :class="errors.email ? 'border-destructive' : 'border-input'"
               placeholder="you@email.com"
               autocomplete="email"
             />
-            <p v-if="errors.email" class="text-sm text-destructive">{{ errors.email }}</p>
+            <p v-if="errors.email" class="text-xs text-destructive">{{ errors.email }}</p>
           </div>
 
           <!-- WhatsApp -->
-          <div class="space-y-2">
-            <label class="text-sm font-medium">WhatsApp</label>
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">WhatsApp Number</label>
             <div class="grid grid-cols-3 gap-2">
               <select
                 v-model="form.countryCode"
-                class="col-span-1 rounded-md border px-2 py-2 text-sm"
+                class="col-span-1 rounded-md border border-input bg-background px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               >
                 <option v-for="c in countryOptions" :key="c.iso2" :value="c.dial">
                   {{ c.dial }} — {{ c.name }}
@@ -215,65 +238,80 @@ const submit = async () => {
               <input
                 v-model="form.whatsapp_number"
                 type="tel"
-                class="col-span-2 rounded-md border px-3 py-2 text-sm"
+                class="col-span-2 rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                :class="errors.whatsapp_number ? 'border-destructive' : 'border-input'"
                 placeholder="50xxxxxxx"
               />
             </div>
-            <p v-if="errors.whatsapp_number" class="text-sm text-destructive">{{ errors.whatsapp_number }}</p>
+            <p v-if="errors.whatsapp_number" class="text-xs text-destructive">{{ errors.whatsapp_number }}</p>
           </div>
 
           <!-- Password -->
-          <div class="space-y-2">
+          <div class="space-y-1.5">
             <label class="text-sm font-medium">Password</label>
             <div class="relative">
               <input
                 :type="showPassword ? 'text' : 'password'"
                 v-model="form.password"
-                class="w-full rounded-md border px-3 py-2 pr-16 text-sm"
+                class="w-full rounded-md border bg-background px-3 py-2 pr-16 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                :class="errors.password ? 'border-destructive' : 'border-input'"
                 placeholder="••••••••"
                 autocomplete="new-password"
               />
               <button
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground transition"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 @click="showPassword = !showPassword"
               >
                 {{ showPassword ? "Hide" : "Show" }}
               </button>
             </div>
-            <p v-if="errors.password" class="text-sm text-destructive">{{ errors.password }}</p>
+            <p v-if="errors.password" class="text-xs text-destructive">{{ errors.password }}</p>
           </div>
 
           <!-- Confirm Password -->
-          <div class="space-y-2">
+          <div class="space-y-1.5">
             <label class="text-sm font-medium">Confirm Password</label>
             <input
               v-model="form.password_confirmation"
               type="password"
-              class="w-full rounded-md border px-3 py-2 text-sm"
+              class="w-full rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              :class="errors.password_confirmation ? 'border-destructive' : 'border-input'"
               placeholder="••••••••"
               autocomplete="new-password"
             />
-            <p v-if="errors.password_confirmation" class="text-sm text-destructive">
+            <p v-if="errors.password_confirmation" class="text-xs text-destructive">
               {{ errors.password_confirmation }}
             </p>
           </div>
+
         </CardContent>
 
-        <CardFooter class="flex flex-col gap-3">
+        <CardFooter class="flex flex-col gap-3 pt-2">
           <Button class="w-full" :disabled="isLoading" @click="submit">
-            {{ isLoading ? "Creating..." : "Create Account" }}
+            {{ isLoading ? "Creating account..." : "Create Account" }}
           </Button>
           <p class="text-xs text-muted-foreground text-center">
             Already have an account?
-            <a href="/login" class="text-primary hover:underline font-medium">Sign in</a>
+            <a href="/login" class="text-primary hover:underline underline-offset-2 font-medium">
+              Sign in
+            </a>
           </p>
         </CardFooter>
       </Card>
     </form>
+
+    <!-- Back to website -->
+    <a
+      href="https://marketsharks.live"
+      class="mt-6 text-xs text-muted-foreground hover:text-foreground transition-colors"
+    >
+      ← Back to marketsharks.live
+    </a>
+
   </section>
 
-  <!-- Success Modal -->
+  <!-- Success Modal — untouched -->
   <Teleport to="body">
     <Transition
       enter-active-class="transition duration-300 ease-out"
@@ -283,35 +321,23 @@ const submit = async () => {
       leave-from-class="opacity-100 scale-100"
       leave-to-class="opacity-0 scale-95"
     >
-      <div
-        v-if="success"
-        class="fixed inset-0 z-50 flex items-center justify-center px-4"
-      >
-        <!-- Backdrop -->
+      <div v-if="success" class="fixed inset-0 z-50 flex items-center justify-center px-4">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-        <!-- Modal -->
         <div class="relative z-10 w-full max-w-sm rounded-2xl bg-card border border-border shadow-2xl p-8 flex flex-col items-center gap-5 text-center">
-
-          <!-- Check icon -->
           <div class="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20">
             <svg class="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 6L9 17l-5-5"/>
             </svg>
           </div>
-
           <div class="space-y-1">
             <h3 class="text-lg font-semibold">You're in! 🎉</h3>
             <p class="text-sm text-muted-foreground">
               Account created successfully.<br/>Taking you to your dashboard…
             </p>
           </div>
-
-          <!-- Progress bar -->
           <div class="w-full h-1 rounded-full bg-muted overflow-hidden">
             <div class="progress-bar" />
           </div>
-
         </div>
       </div>
     </Transition>
@@ -325,7 +351,6 @@ const submit = async () => {
   border-radius: 9999px;
   animation: progress 2.5s ease-in forwards;
 }
-
 @keyframes progress {
   from { width: 0% }
   to   { width: 100% }

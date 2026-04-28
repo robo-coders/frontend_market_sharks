@@ -7,11 +7,9 @@ mode.value = "dark";
 
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import {
   Sheet,
@@ -33,31 +31,11 @@ interface RouteProps {
   label: string;
 }
 
-interface FeatureProps {
-  title: string;
-  description: string;
-}
-
 const routeList: RouteProps[] = [
-  { href: "#testimonials", label: "Testimonials" },
+  { href: "#community", label: "Community" },
   { href: "#pricing", label: "Pricing" },
   { href: "#contact", label: "Contact" },
   { href: "#faq", label: "FAQ" },
-];
-
-const featureList: FeatureProps[] = [
-  {
-    title: "Showcase Your Value",
-    description: "Highlight how your product solves user problems.",
-  },
-  {
-    title: "Build Trust",
-    description: "Leverages social proof elements to establish trust and credibility.",
-  },
-  {
-    title: "Capture Leads",
-    description: "Make your lead capture form visually appealing and strategically.",
-  },
 ];
 
 const isOpen = ref(false);
@@ -124,7 +102,6 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
             <div class="flex w-full items-center justify-between gap-2">
               <ToggleTheme />
 
-              <!-- Mobile Button -->
               <Button as-child size="sm" aria-label="Login">
                 <a
                   :href="isLoggedIn ? '/app/dashboard' : '/login'"
@@ -146,35 +123,6 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
     <NavigationMenu class="hidden lg:block">
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger class="bg-card text-base">
-            Features
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div class="grid w-[600px] grid-cols-2 gap-5 p-4">
-              <img
-                src="https://www.radix-vue.com/logo.svg"
-                alt="Preview"
-                class="h-full w-full rounded-md object-cover"
-              />
-              <ul class="flex flex-col gap-2">
-                <li
-                  v-for="{ title, description } in featureList"
-                  :key="title"
-                  class="rounded-md p-3 text-sm hover:bg-muted"
-                >
-                  <p class="mb-1 font-semibold leading-none">
-                    {{ title }}
-                  </p>
-                  <p class="text-muted-foreground line-clamp-2">
-                    {{ description }}
-                  </p>
-                </li>
-              </ul>
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-
-        <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <Button
               v-for="{ href, label } in routeList"
@@ -194,7 +142,6 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
     <div class="hidden lg:flex items-center gap-2">
       <ToggleTheme />
 
-      <!-- Desktop Button -->
       <Button
         as-child
         size="sm"

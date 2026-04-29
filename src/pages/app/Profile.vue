@@ -3,7 +3,6 @@ import AppLayout from "@/layouts/AppLayout.vue";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { KeyRound, Eye, EyeOff, ShieldCheck, CircleAlert, CalendarClock, Crown } from "lucide-vue-next";
 import { ref } from "vue";

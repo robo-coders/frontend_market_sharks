@@ -15,8 +15,6 @@ import {
   LayoutDashboard,
   CreditCard,
   User as UserIcon,
-  TrendingUp,
-  Video,
   Menu,
   LogOut,
 } from "lucide-vue-next";
@@ -35,8 +33,6 @@ const isOpen = ref(false);
 
 const nav = [
   { href: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  // { href: "/app/Live", label: "Live", icon: TrendingUp },
-  // { href: "/app/Lectures", label: "Lectures", icon: Video },
   { href: "/app/billing", label: "Billing", icon: CreditCard },
   { href: "/app/profile", label: "Profile", icon: UserIcon },
 ];

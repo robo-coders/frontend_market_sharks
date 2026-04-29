@@ -263,7 +263,7 @@ const goToCheckout = () => { window.location.href = `/checkout?plan=${currentPla
   </div>
 
   <AppLayout v-else-if="pageUser" title="Billing">
-    <template #default="{ user }">
+    <template>
 
       <!-- ── Current Plan ── -->
       <Card class="mb-6">

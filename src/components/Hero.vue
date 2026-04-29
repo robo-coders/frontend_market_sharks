@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, TrendingUp, TrendingDown, RefreshCw, Loader2, Zap } from "lucide-vue-next";
 
 const EXCHANGE_API_KEY = "9f94d426d929684c0dad12f2";
 

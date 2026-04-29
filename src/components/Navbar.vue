@@ -74,8 +74,10 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
             <SheetHeader class="mb-4 ml-4">
               <SheetTitle class="flex items-center">
                 <a href="/" class="flex items-center">
-                  <ChevronsDown
-                    class="bg-gradient-to-tr from-primary/70 via-primary to-primary/70 rounded-lg size-9 mr-2 border text-white"
+                  <img
+                    src="/final.png"
+                    alt="Market Sharks"
+                    class="w-9 h-9 mr-2 rounded-lg object-contain"
                   />
                   Market Sharks
                 </a>

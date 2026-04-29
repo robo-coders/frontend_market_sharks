@@ -54,7 +54,8 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
   >
     <!-- Logo -->
     <a href="/" class="font-bold text-lg flex items-center">
-      <img src="/test.svg" alt="Market Sharks" class="w-8 h-8" />
+      <img src="/final.png" alt="Market Sharks" class="w-10 h-10" />
+      
       &nbsp; Market Sharks
     </a>
 

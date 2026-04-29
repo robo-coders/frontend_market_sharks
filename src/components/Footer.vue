@@ -9,7 +9,7 @@ import Separator from "./ui/separator/Separator.vue";
 
         <div class="col-span-full xl:col-span-2">
           <a href="/" class="flex font-bold items-center">
-            <img src="/test.svg" alt="Market Sharks" class="w-9 h-9 mr-2" />
+            <img src="/final.png" alt="Market Sharks" class="w-9 h-9 mr-2" />
             <h3 class="text-2xl">Market Sharks</h3>
           </a>
         </div>

@@ -73,7 +73,7 @@ const logout = () => {
       <div class="h-14 flex items-center justify-between gap-4">
         <!-- Logo -->
         <a href="/" class="flex items-center gap-2 font-semibold tracking-tight">
-          <img src="/test.svg" alt="Market Sharks" class="w-7 h-7" />
+          <img src="/final.png" alt="Market Sharks" class="w-7 h-7" />
           <span class="text-sm md:text-base">Market Sharks</span>
         </a>
 
@@ -141,7 +141,7 @@ const logout = () => {
             <SheetContent side="left" class="bg-card">
               <SheetHeader class="mb-4">
                 <SheetTitle class="flex items-center gap-2">
-                  <img src="/test.svg" alt="Market Sharks" class="w-7 h-7" />
+                  <img src="/final.png" alt="Market Sharks" class="w-7 h-7" />
                   Market Sharks
                 </SheetTitle>
               </SheetHeader>

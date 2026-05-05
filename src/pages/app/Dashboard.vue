@@ -17,6 +17,14 @@ onMounted(async () => {
   try {
     const { data } = await api.get("/api/me");
     pageUser.value = data;
+    
+    console.log("hasActivePlan:", 
+      data?.user?.status, 
+      data?.payment_request_status, 
+      data?.plan, 
+      data?.expires_at
+    );
+    
   } catch {
     window.location.href = "/login";
   } finally {

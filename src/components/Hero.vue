@@ -166,8 +166,8 @@ onBeforeUnmount(() => {
       <!-- Heading -->
       <div class="text-center space-y-8 w-full">
         <Badge variant="outline" class="text-sm py-2">
-          <span class="mr-2 text-primary"><Badge>New</Badge></span>
-          <span>Trade with confidence!</span>
+          <span class="mr-2 text-primary"><Badge>Trade</Badge></span>
+          <span> with confidence!</span>
         </Badge>
         <div class="max-w-screen-md mx-auto text-center text-4xl sm:text-5xl md:text-6xl font-bold">
           <h1>

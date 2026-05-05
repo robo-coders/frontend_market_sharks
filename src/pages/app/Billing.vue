@@ -229,24 +229,32 @@ onMounted(async () => {
 
 // ── Computed ──────────────────────────────────────────────
 const userStatus           = computed(() => pageUser.value?.user?.status ?? "pending");
-const subscriptionStatus   = computed(() => pageUser.value?.user?.subscription_status ?? "none");
 const currentPlan          = computed(() => pageUser.value?.plan ?? null);
 const expiresAt            = computed(() => pageUser.value?.expires_at ?? null);
 const paymentRequestStatus = computed(() => pageUser.value?.payment_request_status ?? null);
 
-const hasApprovedSubscription = computed(() =>
-  userStatus.value === "active" && !!currentPlan.value && !!expiresAt.value
-);
-const isPaymentReview = computed(() =>
-  userStatus.value === "payment_review" || paymentRequestStatus.value === "pending"
-);
+const hasApprovedSubscription = computed(() => {
+  if (!pageUser.value) return false;
+  const status = pageUser.value?.user?.status;
+  const prStatus = pageUser.value?.payment_request_status;
+  return (status === "active" || prStatus === "approved") && !!currentPlan.value && !!expiresAt.value;
+});
+
+const isPaymentReview = computed(() => {
+  if (hasApprovedSubscription.value) return false; // approved users never show this
+  return userStatus.value === "payment_review" || paymentRequestStatus.value === "pending";
+});
+
 const isRejected  = computed(() =>
   userStatus.value === "rejected" || paymentRequestStatus.value === "rejected"
 );
 const isBlocked   = computed(() => userStatus.value === "blocked");
-const isPending   = computed(() =>
-  userStatus.value === "pending" && !paymentRequestStatus.value && subscriptionStatus.value === "none"
-);
+
+const isPending = computed(() => {
+  if (hasApprovedSubscription.value) return false;
+  return userStatus.value === "pending" && !paymentRequestStatus.value;
+});
+
 const isExpiringSoon = computed(() => {
   if (!expiresAt.value) return false;
   const diff = (new Date(expiresAt.value).getTime() - Date.now()) / (1000 * 60 * 60 * 24);

@@ -34,13 +34,23 @@ function daysRemaining(d: string | null | undefined): number {
   return Math.max(0, Math.ceil((new Date(d).getTime() - Date.now()) / 86_400_000));
 }
 
-const hasActivePlan = computed(() =>
-  pageUser.value?.user?.status === "active" && !!pageUser.value?.plan && !!pageUser.value?.expires_at
-);
+const hasActivePlan = computed(() => {
+  if (!pageUser.value) return false;
+  const status = pageUser.value?.user?.status;
+  const prStatus = pageUser.value?.payment_request_status;
+  const plan = pageUser.value?.plan;
+  const expires = pageUser.value?.expires_at;
+  return (status === "active" || prStatus === "approved") && !!plan && !!expires;
+});
+
 const isPending = computed(() => pageUser.value?.payment_request_status === "pending");
 const isRejected = computed(() => pageUser.value?.payment_request_status === "rejected");
 const isBlocked = computed(() => pageUser.value?.user?.status === "blocked");
-const hasNoPlan = computed(() => !hasActivePlan.value && !isPending.value && !isRejected.value && !isBlocked.value);
+
+const hasNoPlan = computed(() => {
+  if (!pageUser.value) return false;
+  return !hasActivePlan.value && !isPending.value && !isRejected.value && !isBlocked.value;
+});
 
 const planLabel = computed(() => {
   const p = pageUser.value?.plan ?? "";
@@ -144,52 +154,6 @@ const days = computed(() => daysRemaining(pageUser.value?.expires_at));
       </Card>
     </template>
 
-    <template v-else-if="hasNoPlan">
-      <Card class="mb-6">
-        <CardContent class="pt-6">
-          <div class="flex items-start gap-4">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <Zap class="size-5 text-primary" />
-            </div>
-            <div>
-              <p class="font-semibold text-base">Welcome, {{ pageUser.user.name }} 👋</p>
-              <p class="text-sm text-muted-foreground mt-1">
-                You're registered but don't have an active subscription yet.
-                Activate a plan to unlock live sessions, daily signals, and the trading community.
-              </p>
-              <a href="/pricing" class="inline-block mt-4">
-                <Button>View Plans & Activate</Button>
-              </a>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <p class="text-xs text-muted-foreground uppercase tracking-widest font-medium mb-3 px-0.5">
-        Unlock with a plan
-      </p>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card v-for="item in [
-          { icon: Video, label: 'Live Sessions', desc: 'Daily live trading sessions with our analysts.' },
-          { icon: TrendingUp, label: 'Today\'s Signals', desc: 'High-probability trade setups delivered daily.' },
-          { icon: BookOpen, label: 'Learning Library', desc: 'Order flow, risk management, and more.' },
-        ]" :key="item.label"
-          class="opacity-40 pointer-events-none select-none"
-        >
-          <CardHeader class="pb-2">
-            <CardTitle class="text-sm flex items-center gap-2">
-              <component :is="item.icon" class="size-4 text-muted-foreground" />
-              {{ item.label }}
-              <Lock class="size-3 ml-auto text-muted-foreground/60" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p class="text-xs text-muted-foreground">{{ item.desc }}</p>
-          </CardContent>
-        </Card>
-      </div>
-    </template>
-
     <template v-else-if="hasActivePlan">
       <Card class="mb-6">
         <CardContent class="pt-6">
@@ -280,5 +244,52 @@ const days = computed(() => daysRemaining(pageUser.value?.expires_at));
         </Card>
       </div>
     </template>
+
+    <template v-else-if="hasNoPlan">
+      <Card class="mb-6">
+        <CardContent class="pt-6">
+          <div class="flex items-start gap-4">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <Zap class="size-5 text-primary" />
+            </div>
+            <div>
+              <p class="font-semibold text-base">Welcome, {{ pageUser.user.name }} 👋</p>
+              <p class="text-sm text-muted-foreground mt-1">
+                You're registered but don't have an active subscription yet.
+                Activate a plan to unlock live sessions, daily signals, and the trading community.
+              </p>
+              <a href="/pricing" class="inline-block mt-4">
+                <Button>View Plans & Activate</Button>
+              </a>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <p class="text-xs text-muted-foreground uppercase tracking-widest font-medium mb-3 px-0.5">
+        Unlock with a plan
+      </p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card v-for="item in [
+          { icon: Video, label: 'Live Sessions', desc: 'Daily live trading sessions with our analysts.' },
+          { icon: TrendingUp, label: 'Today\'s Signals', desc: 'High-probability trade setups delivered daily.' },
+          { icon: BookOpen, label: 'Learning Library', desc: 'Order flow, risk management, and more.' },
+        ]" :key="item.label"
+          class="opacity-40 pointer-events-none select-none"
+        >
+          <CardHeader class="pb-2">
+            <CardTitle class="text-sm flex items-center gap-2">
+              <component :is="item.icon" class="size-4 text-muted-foreground" />
+              {{ item.label }}
+              <Lock class="size-3 ml-auto text-muted-foreground/60" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p class="text-xs text-muted-foreground">{{ item.desc }}</p>
+          </CardContent>
+        </Card>
+      </div>
+    </template>
+
   </AppLayout>
 </template>

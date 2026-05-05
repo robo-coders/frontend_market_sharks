@@ -7,9 +7,11 @@ mode.value = "dark";
 
 import {
   NavigationMenu,
+  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
+  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import {
   Sheet,
@@ -31,11 +33,25 @@ interface RouteProps {
   label: string;
 }
 
+interface PartnerProps {
+  name: string;
+  href: string;
+}
+
 const routeList: RouteProps[] = [
   { href: "#community", label: "Community" },
   { href: "#pricing", label: "Pricing" },
   { href: "#contact", label: "Contact" },
   { href: "#faq", label: "FAQ" },
+];
+
+const partnerList: PartnerProps[] = [
+  { name: "Alpin Markets", href: "#" },
+  { name: "Vantage Market", href: "https://www.vantagemarkets.com/open-live-account/?affid=NzM2NDMwOA==&invitecode=rcva4Nwa" },
+  { name: "Exness", href: "https://one.exnessonelink.com/boarding/sign-up/a/o0d3ngiyp5" },
+  { name: "IC Markets", href: "https://icmarkets.com/?camp=89447" },
+  { name: "Bookmap", href: "https://bookmap.com/members/aff/go/wnjcdag?i=194" },
+  { name: "Binance", href: "https://www.binance.com/register?ref=41848978" },
 ];
 
 const isOpen = ref(false);
@@ -55,7 +71,6 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
     <!-- Logo -->
     <a href="/" class="font-bold text-lg flex items-center">
       <img src="/final.png" alt="Market Sharks" class="w-10 h-10" />
-      
       &nbsp; Market Sharks
     </a>
 
@@ -92,9 +107,19 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
                 variant="ghost"
                 class="justify-start text-base"
               >
-                <a :href="href" @click="isOpen = false">
-                  {{ label }}
-                </a>
+                <a :href="href" @click="isOpen = false">{{ label }}</a>
+              </Button>
+
+              <!-- Partners in mobile -->
+              <p class="px-4 pt-2 text-sm font-semibold text-muted-foreground">Partners</p>
+              <Button
+                v-for="{ name, href } in partnerList"
+                :key="name"
+                as-child
+                variant="ghost"
+                class="justify-start text-base"
+              >
+                <a :href="href" target="_blank" @click="isOpen = false">{{ name }}</a>
               </Button>
             </div>
           </div>
@@ -125,6 +150,31 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
     <!-- Desktop Navigation -->
     <NavigationMenu class="hidden lg:block">
       <NavigationMenuList>
+
+        <!-- Partners Dropdown -->
+        <NavigationMenuItem>
+          <NavigationMenuTrigger class="bg-card text-base">
+            Partners
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul class="flex flex-col gap-1 p-3 w-[220px]">
+              <li
+                v-for="{ name, href } in partnerList"
+                :key="name"
+              >
+                <a
+                  :href="href"
+                  target="_blank"
+                  class="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  {{ name }}
+                </a>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+
+        <!-- Regular Nav Links -->
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <Button
@@ -138,6 +188,7 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
             </Button>
           </NavigationMenuLink>
         </NavigationMenuItem>
+
       </NavigationMenuList>
     </NavigationMenu>
 

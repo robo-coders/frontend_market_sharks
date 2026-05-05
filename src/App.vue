@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 
 import Navbar from "@/components/Navbar.vue";
 import Hero from "@/components/Hero.vue";
+import Partners from "@/components/Partners.vue";
 import Benefits from "@/components/Benefits.vue";
 import Services from "@/components/Services.vue";
 import Pricing from "@/components/Pricing.vue";
@@ -80,6 +81,7 @@ if (isAuthPage.value && token.value) {
   <template v-else>
     <Navbar />
     <Hero />
+    <Partners/>
     <Benefits />
     <Services />
     <Pricing />

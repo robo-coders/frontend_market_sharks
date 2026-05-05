@@ -17,27 +17,31 @@ interface Payment {
   status: PaymentStatus;
 }
 
-const pageUser  = ref<any>(null);
+const pageUser = ref<any>(null);
 const isLoading = ref(true);
-const payments  = ref<Payment[]>([]);
+const payments = ref<Payment[]>([]);
 
 // ── Helpers ───────────────────────────────────────────────
 function friendlyDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric", month: "long", day: "numeric",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
 // ── Invoice number: MS-{USERID}-{PLANCODE}{AMOUNT}-{YYYYMMDD} ──
 function generateInvoiceNumber(): string {
-  const userId  = String(pageUser.value?.user?.id ?? 0).padStart(5, "0");
-  const plan    = (pageUser.value?.plan ?? "basic").toLowerCase();
-  const amount  = (payments.value[0]?.amount ?? "$0").replace(/\D/g, "");
+  const userId = String(pageUser.value?.user?.id ?? 0).padStart(5, "0");
+  const plan = (pageUser.value?.plan ?? "basic").toLowerCase();
+  const amount = (payments.value[0]?.amount ?? "$0").replace(/\D/g, "");
   const dateStr = payments.value[0]?.date ?? new Date().toISOString().split("T")[0];
 
   const planCode: Record<string, string> = {
-    basic: "BA", premium: "PR", enterprise: "EN",
+    basic: "BA",
+    premium: "PR",
+    enterprise: "EN",
   };
 
   return `MS-${userId}-${planCode[plan] ?? "XX"}${amount}-${dateStr.replace(/-/g, "")}`;
@@ -45,14 +49,14 @@ function generateInvoiceNumber(): string {
 
 // ── Build invoice HTML string ─────────────────────────────
 function buildInvoiceHtml(invoiceNo: string): string {
-  const payment   = payments.value[0];
-  const userName  = pageUser.value?.user?.name  ?? "Customer";
+  const payment = payments.value[0];
+  const userName = pageUser.value?.user?.name ?? "Customer";
   const userEmail = pageUser.value?.user?.email ?? "";
-  const today     = friendlyDate(new Date().toISOString().split("T")[0]);
-  const paidDate  = friendlyDate(payment?.date);
+  const today = friendlyDate(new Date().toISOString().split("T")[0]);
+  const paidDate = friendlyDate(payment?.date);
   const renewDate = expiresAt.value ? friendlyDate(expiresAt.value) : "—";
-  const plan      = payment?.plan ?? "—";
-  const amount    = payment?.amount ?? "—";
+  const plan = payment?.plan ?? "—";
+  const amount = payment?.amount ?? "—";
 
   return `<!DOCTYPE html>
 <html>
@@ -187,18 +191,17 @@ function downloadInvoice() {
   if (!payment) return;
 
   const invoiceNo = generateInvoiceNumber();
-  const html      = buildInvoiceHtml(invoiceNo);
-  const blob      = new Blob([html], { type: "text/html" });
-  const url       = URL.createObjectURL(blob);
-  const a         = document.createElement("a");
-  a.href          = url;
-  a.download      = `MarketSharks-Invoice-${invoiceNo}.html`;
+  const html = buildInvoiceHtml(invoiceNo);
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `MarketSharks-Invoice-${invoiceNo}.html`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-// ── Single onMounted ──────────────────────────────────────
-onMounted(async () => {
+async function fetchUser() {
   try {
     const { data } = await api.get("/api/me");
     pageUser.value = data;
@@ -213,8 +216,8 @@ onMounted(async () => {
 
       payments.value = [
         {
-          date:   paidOn,
-          plan:   data.plan.charAt(0).toUpperCase() + data.plan.slice(1),
+          date: paidOn,
+          plan: data.plan.charAt(0).toUpperCase() + data.plan.slice(1),
           amount: data.plan === "basic" ? "$25" : data.plan === "premium" ? "$60" : "$100",
           status: data.payment_request_status,
         },
@@ -225,12 +228,14 @@ onMounted(async () => {
   } finally {
     isLoading.value = false;
   }
-});
+}
+
+onMounted(fetchUser);
 
 // ── Computed ──────────────────────────────────────────────
-const userStatus           = computed(() => pageUser.value?.user?.status ?? "pending");
-const currentPlan          = computed(() => pageUser.value?.plan ?? null);
-const expiresAt            = computed(() => pageUser.value?.expires_at ?? null);
+const userStatus = computed(() => pageUser.value?.user?.status ?? "pending");
+const currentPlan = computed(() => pageUser.value?.plan ?? null);
+const expiresAt = computed(() => pageUser.value?.expires_at ?? null);
 const paymentRequestStatus = computed(() => pageUser.value?.payment_request_status ?? null);
 
 const hasApprovedSubscription = computed(() => {
@@ -241,18 +246,28 @@ const hasApprovedSubscription = computed(() => {
 });
 
 const isPaymentReview = computed(() => {
-  if (hasApprovedSubscription.value) return false; // approved users never show this
+  if (hasApprovedSubscription.value) return false;
   return userStatus.value === "payment_review" || paymentRequestStatus.value === "pending";
 });
 
-const isRejected  = computed(() =>
+const isRejected = computed(() =>
   userStatus.value === "rejected" || paymentRequestStatus.value === "rejected"
 );
-const isBlocked   = computed(() => userStatus.value === "blocked");
+
+const isBlocked = computed(() => userStatus.value === "blocked");
 
 const isPending = computed(() => {
   if (hasApprovedSubscription.value) return false;
   return userStatus.value === "pending" && !paymentRequestStatus.value;
+});
+
+const hasNoPlan = computed(() => {
+  if (!pageUser.value) return false;
+  return !hasApprovedSubscription.value &&
+    !isPending.value &&
+    !isPaymentReview.value &&
+    !isRejected.value &&
+    !isBlocked.value;
 });
 
 const isExpiringSoon = computed(() => {
@@ -261,8 +276,13 @@ const isExpiringSoon = computed(() => {
   return diff >= 0 && diff <= 7;
 });
 
-const goToPricing  = () => { window.location.href = "/pricing"; };
-const goToCheckout = () => { window.location.href = `/checkout?plan=${currentPlan.value || "basic"}`; };
+const goToPricing = () => {
+  window.location.href = "/pricing";
+};
+
+const goToCheckout = () => {
+  window.location.href = `/checkout?plan=${currentPlan.value || "basic"}`;
+};
 </script>
 
 <template>
@@ -271,171 +291,158 @@ const goToCheckout = () => { window.location.href = `/checkout?plan=${currentPla
   </div>
 
   <AppLayout v-else-if="pageUser" title="Billing">
-    <template>
+    <Card class="mb-6">
+      <CardHeader>
+        <CardTitle>Current Plan</CardTitle>
+        <CardDescription>
+          Manage your subscription and renewal details.
+        </CardDescription>
+      </CardHeader>
 
-      <!-- ── Current Plan ── -->
-      <Card class="mb-6">
-        <CardHeader>
-          <CardTitle>Current Plan</CardTitle>
-          <CardDescription>
-            Manage your subscription and renewal details.
-          </CardDescription>
-        </CardHeader>
+      <CardContent class="space-y-4">
+        <div v-if="hasApprovedSubscription" class="flex items-center justify-between flex-wrap gap-4">
+          <div class="flex items-start gap-3">
+            <div class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="text-primary">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-lg font-semibold leading-tight">
+                {{ currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1) }} Plan
+                <span class="text-sm font-normal text-muted-foreground ml-1">
+                  · {{ currentPlan === 'basic' ? '$25' : currentPlan === 'premium' ? '$60' : '$100' }}/mo
+                </span>
+              </p>
+              <p class="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                  <line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/>
+                  <line x1="3" x2="21" y1="10" y2="10"/>
+                </svg>
+                Renews on {{ friendlyDate(expiresAt) }}
+              </p>
+            </div>
+          </div>
 
-        <CardContent class="space-y-4">
+          <div class="flex gap-3 items-center">
+            <Badge variant="default">Active</Badge>
+            <Button v-if="isExpiringSoon" variant="secondary" @click="goToCheckout">
+              Renew Plan
+            </Button>
+          </div>
+        </div>
 
-          <!-- Active -->
-          <div v-if="hasApprovedSubscription" class="flex items-center justify-between flex-wrap gap-4">
-            <div class="flex items-start gap-3">
-              <!-- Plan icon -->
-              <div class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+        <div v-else-if="isPending" class="space-y-3">
+          <Badge variant="secondary">Pending</Badge>
+          <p class="text-sm text-muted-foreground">
+            You don't have an active subscription yet. Submit payment to activate your plan.
+          </p>
+          <div><Button @click="goToPricing">Submit Payment</Button></div>
+        </div>
+
+        <div v-else-if="isPaymentReview" class="space-y-3">
+          <Badge variant="secondary">Payment Under Review</Badge>
+          <p class="text-sm text-muted-foreground">
+            Your payment request has been submitted and is currently being reviewed by our team.
+          </p>
+          <div><Button disabled>Payment Under Review</Button></div>
+        </div>
+
+        <div v-else-if="isRejected" class="space-y-3">
+          <Badge variant="destructive">Rejected</Badge>
+          <p class="text-sm text-muted-foreground">
+            Your payment request was rejected. Please resubmit your payment with valid proof.
+          </p>
+          <div><Button variant="destructive" @click="goToCheckout">Resubmit Payment</Button></div>
+        </div>
+
+        <div v-else-if="isBlocked" class="space-y-3">
+          <Badge variant="destructive">Account Suspended</Badge>
+          <p class="text-sm text-muted-foreground">
+            Your account is suspended. Please contact support for assistance.
+          </p>
+          <div><Button variant="destructive" disabled>Account Suspended</Button></div>
+        </div>
+
+        <div v-else-if="hasNoPlan" class="space-y-3">
+          <Badge variant="secondary">No Active Plan</Badge>
+          <p class="text-sm text-muted-foreground">
+            You don't have an active subscription yet. Submit payment to activate your plan.
+          </p>
+          <div><Button @click="goToPricing">Submit Payment</Button></div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Payment History</CardTitle>
+        <CardDescription>View your past transactions.</CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <div class="space-y-3">
+          <div v-if="payments.length === 0" class="text-sm text-muted-foreground py-2">
+            No payment history yet.
+          </div>
+
+          <div
+            v-for="payment in payments"
+            :key="`${payment.date}-${payment.plan}-${payment.status}`"
+            class="flex items-center justify-between p-4 rounded-xl bg-muted gap-3"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-background/60">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                  class="text-primary">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  class="text-muted-foreground">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
                 </svg>
               </div>
               <div>
-                <p class="text-lg font-semibold leading-tight">
-                  {{ currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1) }} Plan
-                  <span class="text-sm font-normal text-muted-foreground ml-1">
-                    · {{ currentPlan === 'basic' ? '$25' : currentPlan === 'premium' ? '$60' : '$100' }}/mo
-                  </span>
+                <p class="font-medium text-sm leading-tight">
+                  {{ payment.plan }} Plan
+                  <span class="text-muted-foreground font-normal">— {{ payment.amount }}</span>
                 </p>
-                <p class="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                  <!-- Calendar icon -->
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                    <line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/>
-                    <line x1="3" x2="21" y1="10" y2="10"/>
-                  </svg>
-                  Renews on {{ friendlyDate(expiresAt) }}
-                </p>
+                <p class="text-xs text-muted-foreground mt-0.5">{{ friendlyDate(payment.date) }}</p>
               </div>
             </div>
 
-            <div class="flex gap-3 items-center">
-              <Badge variant="default">Active</Badge>
-              <Button v-if="isExpiringSoon" variant="secondary" @click="goToCheckout">
-                Renew Plan
+            <Badge
+              :variant="
+                payment.status === 'approved' ? 'default'
+                : payment.status === 'pending' ? 'secondary'
+                : 'destructive'
+              "
+              class="shrink-0"
+            >
+              {{ payment.status.toUpperCase() }}
+            </Badge>
+          </div>
+
+          <template v-if="hasApprovedSubscription && payments.length > 0">
+            <Separator class="mt-1" />
+            <div class="flex justify-end pt-1">
+              <Button variant="secondary" @click="downloadInvoice" class="gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" x2="12" y1="15" y2="3"/>
+                </svg>
+                Download Invoice
               </Button>
             </div>
-          </div>
-
-          <!-- Pending -->
-          <div v-else-if="isPending" class="space-y-3">
-            <Badge variant="secondary">Pending</Badge>
-            <p class="text-sm text-muted-foreground">
-              You don't have an active subscription yet. Submit payment to activate your plan.
-            </p>
-            <div><Button @click="goToPricing">Submit Payment</Button></div>
-          </div>
-
-          <!-- Payment Review -->
-          <div v-else-if="isPaymentReview" class="space-y-3">
-            <Badge variant="secondary">Payment Under Review</Badge>
-            <p class="text-sm text-muted-foreground">
-              Your payment request has been submitted and is currently being reviewed by our team.
-            </p>
-            <div><Button disabled>Payment Under Review</Button></div>
-          </div>
-
-          <!-- Rejected -->
-          <div v-else-if="isRejected" class="space-y-3">
-            <Badge variant="destructive">Rejected</Badge>
-            <p class="text-sm text-muted-foreground">
-              Your payment request was rejected. Please resubmit your payment with valid proof.
-            </p>
-            <div><Button variant="destructive" @click="goToCheckout">Resubmit Payment</Button></div>
-          </div>
-
-          <!-- Blocked -->
-          <div v-else-if="isBlocked" class="space-y-3">
-            <Badge variant="destructive">Account Suspended</Badge>
-            <p class="text-sm text-muted-foreground">
-              Your account is suspended. Please contact support for assistance.
-            </p>
-            <div><Button variant="destructive" disabled>Account Suspended</Button></div>
-          </div>
-
-        </CardContent>
-      </Card>
-
-      <!-- ── Payment History ── -->
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment History</CardTitle>
-          <CardDescription>View your past transactions.</CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <div class="space-y-3">
-
-            <div v-if="payments.length === 0" class="text-sm text-muted-foreground py-2">
-              No payment history yet.
-            </div>
-
-            <!-- Payment row -->
-            <div
-              v-for="payment in payments"
-              :key="`${payment.date}-${payment.plan}-${payment.status}`"
-              class="flex items-center justify-between p-4 rounded-xl bg-muted gap-3"
-            >
-              <!-- Left: icon + details -->
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-background/60">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="text-muted-foreground">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/>
-                    <polyline points="10 9 9 9 8 9"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="font-medium text-sm leading-tight">
-                    {{ payment.plan }} Plan
-                    <span class="text-muted-foreground font-normal">— {{ payment.amount }}</span>
-                  </p>
-                  <p class="text-xs text-muted-foreground mt-0.5">{{ friendlyDate(payment.date) }}</p>
-                </div>
-              </div>
-
-              <!-- Right: status badge -->
-              <Badge
-                :variant="
-                  payment.status === 'approved' ? 'default'
-                  : payment.status === 'pending' ? 'secondary'
-                  : 'destructive'
-                "
-                class="shrink-0"
-              >
-                {{ payment.status.toUpperCase() }}
-              </Badge>
-            </div>
-
-            <!-- Download Invoice -->
-            <template v-if="hasApprovedSubscription && payments.length > 0">
-              <Separator class="mt-1" />
-              <div class="flex justify-end pt-1">
-                <Button variant="secondary" @click="downloadInvoice" class="gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" x2="12" y1="15" y2="3"/>
-                  </svg>
-                  Download Invoice
-                </Button>
-              </div>
-            </template>
-
-          </div>
-        </CardContent>
-      </Card>
-
-    </template>
+          </template>
+        </div>
+      </CardContent>
+    </Card>
   </AppLayout>
 </template>

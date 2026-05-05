@@ -30,8 +30,29 @@ const syncRoute = () => {
   route.value = window.location.pathname;
 };
 
-onMounted(() => window.addEventListener("popstate", syncRoute));
-onBeforeUnmount(() => window.removeEventListener("popstate", syncRoute));
+const navigate = (path: string) => {
+  if (window.location.pathname === path) return;
+  window.history.pushState({}, "", path);
+  syncRoute();
+};
+
+declare global {
+  interface Window {
+    navigate: (path: string) => void;
+  }
+}
+
+window.navigate = navigate;
+
+onMounted(() => {
+  window.addEventListener("popstate", syncRoute);
+  window.addEventListener("locationchange", syncRoute);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("popstate", syncRoute);
+  window.removeEventListener("locationchange", syncRoute);
+});
 
 /* ---------------- AUTH STATE ---------------- */
 
@@ -51,9 +72,8 @@ const isAuthPage = computed(() =>
 
 /* ---------------- GUARDS ---------------- */
 
-// Logged-in user hits /login or /register → send to dashboard
 if (isAuthPage.value && token.value) {
-  window.location.href = "/app/dashboard";
+  navigate("/app/dashboard");
 }
 </script>
 
@@ -81,7 +101,7 @@ if (isAuthPage.value && token.value) {
   <template v-else>
     <Navbar />
     <Hero />
-    <Partners/>
+    <Partners />
     <Benefits />
     <Services />
     <Pricing />

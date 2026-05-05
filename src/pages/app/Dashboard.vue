@@ -13,28 +13,26 @@ import api from "@/lib/axios";
 const pageUser = ref<any>(null);
 const isLoading = ref(true);
 
-onMounted(async () => {
+async function fetchUser() {
   try {
     const { data } = await api.get("/api/me");
     pageUser.value = data;
-    
-    console.log("hasActivePlan:", 
-      data?.user?.status, 
-      data?.payment_request_status, 
-      data?.plan, 
-      data?.expires_at
-    );
-    
   } catch {
     window.location.href = "/login";
   } finally {
     isLoading.value = false;
   }
-});
+}
+
+onMounted(fetchUser);
 
 function friendlyDate(d: string | null | undefined) {
   if (!d) return "Not set";
-  return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  return new Date(d).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 function daysRemaining(d: string | null | undefined): number {
@@ -66,6 +64,18 @@ const planLabel = computed(() => {
 });
 
 const days = computed(() => daysRemaining(pageUser.value?.expires_at));
+
+const lockedFeatures = [
+  { icon: Video, label: "Live Sessions", desc: "Daily live trading sessions with our analysts." },
+  { icon: TrendingUp, label: "Today's Signals", desc: "High-probability trade setups delivered daily." },
+  { icon: BookOpen, label: "Learning Library", desc: "Order flow, risk management, and more." },
+];
+
+const upcomingFeatures = [
+  { icon: Video, label: "Live Sessions", desc: "Daily live trading sessions with our analysts." },
+  { icon: TrendingUp, label: "Today's Signals", desc: "High-probability trade setups delivered daily." },
+  { icon: BookOpen, label: "Learning Library", desc: "Order flow, risk management, and more." },
+];
 </script>
 
 <template>
@@ -118,11 +128,9 @@ const days = computed(() => daysRemaining(pageUser.value?.expires_at));
         Coming with your plan
       </p>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card v-for="item in [
-          { icon: Video, label: 'Live Sessions', desc: 'Daily live trading sessions with our analysts.' },
-          { icon: TrendingUp, label: 'Today\'s Signals', desc: 'High-probability trade setups delivered daily.' },
-          { icon: BookOpen, label: 'Learning Library', desc: 'Order flow, risk management, and more.' },
-        ]" :key="item.label"
+        <Card
+          v-for="item in lockedFeatures"
+          :key="item.label"
           class="opacity-40 pointer-events-none select-none"
         >
           <CardHeader class="pb-2">
@@ -206,20 +214,19 @@ const days = computed(() => daysRemaining(pageUser.value?.expires_at));
                 <p class="font-semibold text-sm">Join the Traders Community</p>
                 <p class="text-xs text-muted-foreground mt-0.5">
                   Active traders — signals, discussion and live calls.
-
                 </p>
               </div>
             </div>
-              <a
-                v-if="pageUser.whatsapp_link"
-                :href="pageUser.whatsapp_link"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button class="gap-2 shrink-0">
-                  <MessageCircle class="size-4" /> Join WhatsApp Group
-                </Button>
-              </a>
+            <a
+              v-if="pageUser.whatsapp_link"
+              :href="pageUser.whatsapp_link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button class="gap-2 shrink-0">
+                <MessageCircle class="size-4" /> Join WhatsApp Group
+              </Button>
+            </a>
           </div>
         </CardContent>
       </Card>
@@ -228,11 +235,9 @@ const days = computed(() => daysRemaining(pageUser.value?.expires_at));
         Coming in Version 2
       </p>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card v-for="item in [
-          { icon: Video, label: 'Live Sessions', desc: 'Daily live trading sessions with our analysts.' },
-          { icon: TrendingUp, label: 'Today\'s Signals', desc: 'High-probability trade setups delivered daily.' },
-          { icon: BookOpen, label: 'Learning Library', desc: 'Order flow, risk management, and more.' },
-        ]" :key="item.label"
+        <Card
+          v-for="item in upcomingFeatures"
+          :key="item.label"
           class="relative overflow-hidden opacity-50 pointer-events-none select-none"
         >
           <div class="absolute top-3 right-3">
@@ -278,11 +283,9 @@ const days = computed(() => daysRemaining(pageUser.value?.expires_at));
         Unlock with a plan
       </p>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card v-for="item in [
-          { icon: Video, label: 'Live Sessions', desc: 'Daily live trading sessions with our analysts.' },
-          { icon: TrendingUp, label: 'Today\'s Signals', desc: 'High-probability trade setups delivered daily.' },
-          { icon: BookOpen, label: 'Learning Library', desc: 'Order flow, risk management, and more.' },
-        ]" :key="item.label"
+        <Card
+          v-for="item in lockedFeatures"
+          :key="item.label"
           class="opacity-40 pointer-events-none select-none"
         >
           <CardHeader class="pb-2">
@@ -298,6 +301,5 @@ const days = computed(() => daysRemaining(pageUser.value?.expires_at));
         </Card>
       </div>
     </template>
-
   </AppLayout>
 </template>

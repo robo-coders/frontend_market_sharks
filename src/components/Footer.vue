@@ -40,12 +40,42 @@ import Separator from "./ui/separator/Separator.vue";
           <div><a target="_blank" href="https://www.facebook.com/share/1JCie4aR12/?mibextid=wwXIfr" class="opacity-60 hover:opacity-100">Instagram</a></div>
           <div><a target="_blank" href="https://www.instagram.com/marketsharks.live?igsh=ZGF2YWl0OTdzd2Nj&utm_source=qr" class="opacity-60 hover:opacity-100">Facebook</a></div>
           <div><a target="_blank" href="https://youtube.com/@marketsharkss?si=cxx0w5sQC9F_AXxl" class="opacity-60 hover:opacity-100">YouTube</a></div>
+          <div><a target="_blank" href="https://www.tiktok.com/@marketsharks.live?_r=1&_t=ZS-967AwUFEDu4" class="opacity-60 hover:opacity-100">Tiktok</a></div>
         </div>
 
       </div>
 
       <Separator class="my-6" />
-      <section class="">
+
+      <!-- Disclaimer -->
+      <div class="mb-6 text-xs text-muted-foreground leading-relaxed space-y-3">
+        <p>
+          The information presented on the Market Sharks website is solely for informational and
+          educational purposes. It is not, nor is it intended to be, trading or investment advice
+          or a recommendation that any securities, strategies, or trading methodologies described
+          by Market Sharks are suitable for any particular investor. Furthermore, the information
+          and opinions presented by Market Sharks are not an attempt to induce any particular
+          trading behavior, investment, or strategy.
+        </p>
+        <p>
+          Market Sharks is not a broker dealer, and its representatives are not securities brokers,
+          licensed financial advisors, or registered investment advisors. Trading securities
+          including equities, options, and futures involves risk of loss which can be substantial.
+        </p>
+        <p>
+          Results of transactions described on the Market Sharks website and social media, and any
+          presentation therein, may vary due to differences in market conditions, execution prices,
+          the time of trade executions, fees for brokerage services, and other factors. Past
+          performance is not necessarily indicative of future results. The information and any
+          opinions contained on this website have been obtained from sources that Market Sharks
+          considers reliable, but Market Sharks does not represent that such information and
+          opinions are accurate or complete, and thus should not be relied upon as such.
+        </p>
+      </div>
+
+      <Separator class="my-6" />
+
+      <section>
         <h3 class="">
           &copy; 2026 Designed and developed by
           <a

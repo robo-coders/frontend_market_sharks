@@ -2,6 +2,8 @@
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 
 import Navbar from "@/components/Navbar.vue";
+import FraudAlert from "@/components/FraudAlert.vue";
+import WhatsAppButton from "@/components/WhatsAppButton.vue";
 import Hero from "@/components/Hero.vue";
 import Partners from "@/components/Partners.vue";
 import Benefits from "@/components/Benefits.vue";
@@ -100,6 +102,7 @@ if (isAuthPage.value && token.value) {
   <!-- Landing -->
   <template v-else>
     <Navbar />
+    <FraudAlert/>
     <Hero />
     <Partners />
     <Benefits />
@@ -109,5 +112,6 @@ if (isAuthPage.value && token.value) {
     <Contact />
     <FAQ />
     <Footer />
+    <WhatsAppButton />
   </template>
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
-
 import {
   Card,
   CardContent,
@@ -20,6 +19,8 @@ interface PlanProps {
   title: string;
   popular: PopularPlan;
   price: number;
+  originalPrice?: number;
+  discountLabel?: string;
   period: "month" | "quarter" | "hour";
   description: string;
   buttonText: string;
@@ -46,6 +47,8 @@ const plans: PlanProps[] = [
     title: "Premium",
     popular: PopularPlan.YES,
     price: 60,
+    originalPrice: 75,
+    discountLabel: "20% OFF",
     period: "quarter",
     description:
       "Ideal for active traders who want full-day live trading, premium alerts, and deeper market analysis.",
@@ -80,10 +83,7 @@ const checkoutHref = (title: string) =>
 </script>
 
 <template>
-  <section
-    id="pricing"
-    class="container py-24 sm:py-32"
-  >
+  <section id="pricing" class="container py-24 sm:py-32">
     <h2 class="text-lg text-primary text-center mb-2 tracking-wider">
       Pricing
     </h2>
@@ -103,6 +103,8 @@ const checkoutHref = (title: string) =>
           title,
           popular,
           price,
+          originalPrice,
+          discountLabel,
           period,
           description,
           buttonText,
@@ -115,6 +117,7 @@ const checkoutHref = (title: string) =>
             popular === PopularPlan.YES,
         }"
       >
+        <!-- Most Popular badge -->
         <span
           v-if="popular === PopularPlan.YES"
           class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-4 py-1 rounded-full"
@@ -122,14 +125,31 @@ const checkoutHref = (title: string) =>
           Most Popular
         </span>
 
+        <!-- Discount badge -->
+        <span
+          v-if="discountLabel"
+          class="absolute top-4 right-4 bg-green-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full tracking-wide"
+        >
+          {{ discountLabel }}
+        </span>
+
         <CardHeader>
           <CardTitle class="pb-2">{{ title }}</CardTitle>
           <CardDescription class="pb-4">{{ description }}</CardDescription>
 
-          <div>
-            <span class="text-3xl font-bold">${{ price }}</span>
-            <span class="text-muted-foreground">
-              {{ period === "hour" ? "/hourly" : `/${period}` }}
+          <div class="flex items-end gap-2">
+            <div>
+              <span class="text-3xl font-bold">${{ price }}</span>
+              <span class="text-muted-foreground">
+                {{ period === "hour" ? "/hourly" : `/${period}` }}
+              </span>
+            </div>
+            <!-- Struck-through original price -->
+            <span
+              v-if="originalPrice"
+              class="text-muted-foreground line-through text-sm mb-1"
+            >
+              ${{ originalPrice }}
             </span>
           </div>
         </CardHeader>

@@ -45,7 +45,7 @@ import WhatsAppIcon from "@/icons/WhatsAppIcon.vue";
           <CardFooter>
             <Button as-child>
               <a
-                href="https://chat.whatsapp.com/GIuCPbJ7V9W3wtYsQQz1x4"
+                href="https://chat.whatsapp.com/FzWkNru4RUmL3ar5FRo24a"
                 target="_blank"
                 rel="noopener noreferrer"
               >

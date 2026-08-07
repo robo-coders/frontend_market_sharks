@@ -4,7 +4,7 @@ import "@selemondev/vue3-marquee/dist/style.css";
 import { TrendingUp } from "lucide-vue-next";
 
 const partners = [
-  { name: "Alpin Markets",  href: "#" },
+  { name: "Alpin Markets",  href: "https://my.alpinmarkets.com/links/go/1" },
   { name: "Vantage Market", href: "https://www.vantagemarkets.com/open-live-account/?affid=NzM2NDMwOA==&invitecode=rcva4Nwa" },
   { name: "Exness",         href: "https://one.exnessonelink.com/boarding/sign-up/a/o0d3ngiyp5" },
   { name: "IC Markets",     href: "https://icmarkets.com/?camp=89447" },

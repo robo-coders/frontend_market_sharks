@@ -37,7 +37,7 @@ const plans: PlanProps[] = [
       "Perfect for beginners seeking guided trades, live sessions, and essential market insights.",
     buttonText: "Get started",
     benefitList: [
-      "Live 90-minute trading session",
+      "Live 60 minute trading session",
       "Exclusive chart alerts",
       "Level 2 data insights",
       "Access to premium learning content",
@@ -69,7 +69,7 @@ const plans: PlanProps[] = [
       "Built for serious traders who need complete access, advanced tools, and priority-level support.",
     buttonText: "Get started",
     benefitList: [
-      "1:1 trading session (60 minutes)",
+      "1:1 training session (60 minutes)",
       "Strategy development",
       "Risk management planning",
       "Advanced Bookmap training",

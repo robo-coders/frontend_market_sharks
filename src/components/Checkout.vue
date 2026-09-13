@@ -161,13 +161,13 @@ const easyPaisaDetails = reactive({
 })
 
 const btcDetails = reactive({
-  address: "bc1q0xtas7rdmenepy6h8pqmyn6835ewqxr4rrzztf",
-  network: "BTC (Bitcoin)",
+  address: "0x63BEFDD3091D90226Ef28AAEa39d9546eB46CBA3",
+  network: "Bep20 (binance smart chain)",
 })
 
 const usdtDetails = reactive({
-  address: "TLUVYTLiKkQ6RpSD5dMFUNzuJ49aWHQTB1",
-  network: "TRC20 (Tron)",
+  address: "TYFG8rVHaJZuomNbq6m23kjuBYoTGBuYQH",
+  network: "( tron )",
 })
 
 const countryOptions = computed(() => {
@@ -866,7 +866,7 @@ const submitCheckout = async () => {
               <div v-else class="space-y-4">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <div class="text-sm font-medium">BTC Address</div>
+                    <div class="text-sm font-medium">USDT Address</div>
                     <div class="mb-1 text-xs text-muted-foreground">
                       Network: {{ btcDetails.network }}
                     </div>
@@ -885,7 +885,7 @@ const submitCheckout = async () => {
 
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <div class="text-sm font-medium">USDT Address</div>
+                    <div class="text-sm font-medium">USDT TRC20 Address</div>
                     <div class="mb-1 text-xs text-muted-foreground">
                       Network: {{ usdtDetails.network }}
                     </div>

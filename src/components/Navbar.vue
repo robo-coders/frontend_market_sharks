@@ -111,7 +111,7 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
               </Button>
 
               <!-- Partners in mobile -->
-              <p class="px-4 pt-2 text-sm font-semibold text-muted-foreground">Partners</p>
+              <p class="px-4 pt-2 text-sm font-semibold text-muted-foreground">Brokers</p>
               <Button
                 v-for="{ name, href } in partnerList"
                 :key="name"
@@ -154,7 +154,7 @@ const isLoggedIn = !!localStorage.getItem("auth_token");
         <!-- Partners Dropdown -->
         <NavigationMenuItem>
           <NavigationMenuTrigger class="bg-card text-base">
-            Partners
+            Brokers
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul class="flex flex-col gap-1 p-3 w-[220px]">

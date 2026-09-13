@@ -15,7 +15,7 @@ const partners = [
 
 <template>
   <section id="sponsors" class="max-w-[75%] mx-auto pb-24 sm:pb-32">
-    <h2 class="text-lg md:text-xl text-center mb-6">Trusted Partners</h2>
+    <h2 class="text-lg md:text-xl text-center mb-6">Trusted Brokers</h2>
 
     <div class="mx-auto">
       <Marquee

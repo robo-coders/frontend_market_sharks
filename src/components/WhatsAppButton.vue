@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const whatsappUrl = "https://chat.whatsapp.com/GIuCPbJ7V9W3wtYsQQz1x4";
+const whatsappUrl = "https://chat.whatsapp.com/FzWkNru4RUmL3ar5FRo24a";
 </script>
 
 <template>
